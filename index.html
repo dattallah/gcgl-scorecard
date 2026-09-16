@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>GCGL Scorecard</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GCGL" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a4731" />
+  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22GCGL+Scorecard%22%2C%22short_name%22%3A%22GCGL%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a4731%22%2C%22theme_color%22%3A%22%231a4731%22%7D" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMWE0NzMxIi8+PHRleHQgeD0iOTAiIHk9IjExNSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNjOWE4NGMiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkc8L3RleHQ+PC9zdmc+" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f5f0e8; font-family: Georgia, serif; -webkit-text-size-adjust: 100%; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    .print-only { display: none; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: #fff !important; }
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useRef, useEffect, useMemo, useCallback, memo } = React;
+
+// ── Colour palette ────────────────────────────────────────────────────────────
+const G     = "#1a4731";
+const GL    = "#2d6a4f";
+const GOLD  = "#c9a84c";
+const BG    = "#f5f0e8";
+const CARD  = "#fffdf7";
+const LINE  = "#d4c9b0";
+const MUTED = "#8a7d65";
+const RED   = "#B91C1C";
+const TEXT  = "#1a1a1a";
+
+// ── TEE_KEYS — same 5 slot keys used across all courses ──────────────────────
+const TEE_KEYS = ["hw","hy","hb","db","dr"];
+
+// ── Course library ────────────────────────────────────────────────────────────
+// Helper: build holeInfo row with per-tee distances in meters
+// null = tee not available
+function hi(name, hw, hy, hb, db, dr) {
+  const dist = hw ?? hy ?? hb ?? db ?? dr;
+  const fromTee = hw!=null?"hw":hy!=null?"hy":hb!=null?"hb":db!=null?"db":"dr";
+  return { name, dist, fromTee, distances:{hw,hy,hb,db,dr} };
+}
+
+const DEFAULT_COURSES = [
+  // ── Am Alten Fließ: GELB-ROT ─────────────────────────────────────────────
+  {
+    id: "aaf_gr", name: "Am Alten Fließ: Gelb-Rot", shortName: "AAF·GR", unit: "m",
+    holes: [
+      {nr:1,hcp:12,par:4},{nr:2,hcp:17,par:4},{nr:3,hcp:9,par:5},{nr:4,hcp:13,par:3},
+      {nr:5,hcp:3,par:4},{nr:6,hcp:5,par:5},{nr:7,hcp:11,par:4},{nr:8,hcp:7,par:4},{nr:9,hcp:15,par:3},
+      {nr:10,hcp:12,par:5},{nr:11,hcp:14,par:4},{nr:12,hcp:10,par:4},{nr:13,hcp:18,par:3},
+      {nr:14,hcp:6,par:4},{nr:15,hcp:8,par:5},{nr:16,hcp:16,par:3},{nr:17,hcp:2,par:4},{nr:18,hcp:4,par:4},
+    ],
+    holeInfo: [
+      // Front = Gelb-Schleife  (W=Weiß, G=Gelb, B=Blau, R=Rot/Damen)
+      hi("Gelb 1",326,326,291,null,263), hi("Gelb 2",319,319,291,null,258),
+      hi("Gelb 3",505,485,441,null,427), hi("Gelb 4",168,168,141,null,141),
+      hi("Gelb 5",392,392,354,null,321), hi("Gelb 6",481,471,471,null,407),
+      hi("Gelb 7",382,347,320,null,320), hi("Gelb 8",371,360,335,null,312),
+      hi("Gelb 9",150,147,131,null,114),
+      // Back = Rot-Schleife
+      hi("Rot 1", 469,455,455,null,382), hi("Rot 2", 305,287,272,null,261),
+      hi("Rot 3", 426,387,337,null,315), hi("Rot 4", 127,112,107,null,96),
+      hi("Rot 5", 415,385,371,null,349), hi("Rot 6", 467,449,449,null,393),
+      hi("Rot 7", 225,193,170,null,154), hi("Rot 8", 377,373,326,null,298),
+      hi("Rot 9", 355,355,319,null,289),
+    ],
+    tees: {
+      hw: {label:"Herren Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:73.3, slope:133},
+      hy: {label:"Herren Gelb",  short:"H·Y", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.8, slope:132},
+      hb: {label:"Herren Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.4, slope:131},
+      db: {label:"Damen",        short:"D",   gender:"D", bg:"#f0c800", ring:"#b89600", cr:75.7, slope:131},
+      dr: {label:"Damen Rot",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.6, slope:124},
+    },
+  },
+  // ── Am Alten Fließ: ROT-WEISS ────────────────────────────────────────────
+  {
+    id: "aaf_rw", name: "Am Alten Fließ: Rot-Weiß", shortName: "AAF·RW", unit: "m",
+    holes: [
+      {nr:1,hcp:11,par:5},{nr:2,hcp:13,par:4},{nr:3,hcp:9,par:4},{nr:4,hcp:17,par:3},
+      {nr:5,hcp:5,par:4},{nr:6,hcp:7,par:5},{nr:7,hcp:15,par:3},{nr:8,hcp:1,par:4},{nr:9,hcp:3,par:4},
+      {nr:10,hcp:6,par:5},{nr:11,hcp:16,par:3},{nr:12,hcp:10,par:4},{nr:13,hcp:8,par:4},
+      {nr:14,hcp:14,par:5},{nr:15,hcp:12,par:4},{nr:16,hcp:4,par:4},{nr:17,hcp:18,par:3},{nr:18,hcp:2,par:4},
+    ],
+    holeInfo: [
+      // Front = Rot-Schleife
+      hi("Rot 1", 469,455,455,null,382), hi("Rot 2", 305,287,272,null,261),
+      hi("Rot 3", 426,387,337,null,315), hi("Rot 4", 127,112,107,null,96),
+      hi("Rot 5", 415,385,371,null,349), hi("Rot 6", 467,449,449,null,393),
+      hi("Rot 7", 225,193,170,null,154), hi("Rot 8", 377,373,326,null,298),
+      hi("Rot 9", 355,355,319,null,289),
+      // Back = Weiß-Schleife
+      hi("Weiß 1",526,488,457,null,439), hi("Weiß 2",205,187,177,null,154),
+      hi("Weiß 3",314,300,275,null,256), hi("Weiß 4",358,341,330,null,316),
+      hi("Weiß 5",492,450,450,null,376), hi("Weiß 6",430,354,305,null,282),
+      hi("Weiß 7",409,409,363,null,328), hi("Weiß 8",178,155,138,null,117),
+      hi("Weiß 9",355,355,325,null,298),
+    ],
+    tees: {
+      hw: {label:"Herren Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:74.1, slope:130},
+      hy: {label:"Herren Gelb",  short:"H·Y", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.9, slope:128},
+      hb: {label:"Herren Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.5, slope:126},
+      db: {label:"Damen",        short:"D",   gender:"D", bg:"#f0c800", ring:"#b89600", cr:75.8, slope:131},
+      dr: {label:"Damen Rot",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.2, slope:122},
+    },
+  },
+  // ── Am Alten Fließ: WEISS-GELB ───────────────────────────────────────────
+  {
+    id: "aaf_wg", name: "Am Alten Fließ: Weiß-Gelb", shortName: "AAF·WG", unit: "m",
+    holes: [
+      {nr:1,hcp:5,par:5},{nr:2,hcp:15,par:3},{nr:3,hcp:9,par:4},{nr:4,hcp:7,par:4},
+      {nr:5,hcp:13,par:5},{nr:6,hcp:11,par:4},{nr:7,hcp:3,par:4},{nr:8,hcp:17,par:3},{nr:9,hcp:1,par:4},
+      {nr:10,hcp:2,par:4},{nr:11,hcp:18,par:4},{nr:12,hcp:10,par:5},{nr:13,hcp:14,par:3},
+      {nr:14,hcp:4,par:4},{nr:15,hcp:6,par:5},{nr:16,hcp:12,par:4},{nr:17,hcp:8,par:4},{nr:18,hcp:16,par:3},
+    ],
+    holeInfo: [
+      // Front = Weiß-Schleife
+      hi("Weiß 1",526,488,457,null,439), hi("Weiß 2",205,187,177,null,154),
+      hi("Weiß 3",314,300,275,null,256), hi("Weiß 4",358,341,330,null,316),
+      hi("Weiß 5",492,450,450,null,376), hi("Weiß 6",430,354,305,null,282),
+      hi("Weiß 7",409,409,363,null,328), hi("Weiß 8",178,155,138,null,117),
+      hi("Weiß 9",355,355,325,null,298),
+      // Back = Gelb-Schleife
+      hi("Gelb 1",326,326,291,null,263), hi("Gelb 2",319,319,291,null,258),
+      hi("Gelb 3",505,485,441,null,427), hi("Gelb 4",168,168,141,null,141),
+      hi("Gelb 5",392,392,354,null,321), hi("Gelb 6",481,471,471,null,407),
+      hi("Gelb 7",382,347,320,null,320), hi("Gelb 8",371,360,335,null,312),
+      hi("Gelb 9",150,147,131,null,114),
+    ],
+    tees: {
+      hw: {label:"Herren Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:73.6, slope:130},
+      hy: {label:"Herren Gelb",  short:"H·Y", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.0, slope:129},
+      hb: {label:"Herren Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.3, slope:126},
+      db: {label:"Damen",        short:"D",   gender:"D", bg:"#f0c800", ring:"#b89600", cr:75.6, slope:130},
+      dr: {label:"Damen Rot",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.6, slope:123},
+    },
+  },
+  // ── Cabopino Golf Marbella (Par 71) ─────────────────────────────────────────
+  // 3 tees: Amarillas H CR69.1/130 · Azules H CR67.9/127 · Rojas H CR65.1/123
+  //          Azules D CR72.5/134 (same tee as Azules H) · Rojas D CR70.1/127 (same as Rojas H)
+  // Distanzen in Metern · Amarillas=hw=5193m · Azules=hy/db=4946m · Rojas=hb/dr=4467m
+  {
+    id: "cabopino",
+    name: "Cabopino Golf Marbella",
+    shortName: "CAB",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:11,par:4},{nr:2, hcp:12,par:4},{nr:3, hcp:13,par:4},{nr:4, hcp:9, par:4},
+      {nr:5, hcp:1, par:4},{nr:6, hcp:10,par:4},{nr:7, hcp:15,par:3},{nr:8, hcp:6, par:4},{nr:9, hcp:3, par:4},
+      {nr:10,hcp:7, par:4},{nr:11,hcp:2, par:4},{nr:12,hcp:5, par:5},{nr:13,hcp:18,par:3},
+      {nr:14,hcp:4, par:5},{nr:15,hcp:17,par:3},{nr:16,hcp:14,par:4},{nr:17,hcp:16,par:4},{nr:18,hcp:8, par:4},
+    ],
+    holeInfo: [
+      // hw=Amarillas(H), hy=Azules(H), hb=Rojas(H), db=Azules(D), dr=Rojas(D)
+      hi("Loch 1",  309,301,264,301,264), hi("Loch 2",  275,263,244,263,244),
+      hi("Loch 3",  288,287,230,287,230), hi("Loch 4",  243,231,210,231,210),
+      hi("Loch 5",  378,352,312,352,312), hi("Loch 6",  264,259,252,259,252),
+      hi("Loch 7",  149,134,125,134,125), hi("Loch 8",  277,267,221,267,221),
+      hi("Loch 9",  327,311,275,311,275),
+      hi("Loch 10", 327,314,298,314,298), hi("Loch 11", 336,318,279,318,279),
+      hi("Loch 12", 422,392,354,392,354), hi("Loch 13", 134,121,106,121,106),
+      hi("Loch 14", 456,442,403,442,403), hi("Loch 15", 130,115,104,115,104),
+      hi("Loch 16", 305,290,274,290,274), hi("Loch 17", 268,258,250,258,250),
+      hi("Loch 18", 305,291,266,291,266),
+    ],
+    tees: {
+      hw: {label:"Amarillas (H)", short:"Amar", gender:"H", bg:"#f0c800", ring:"#b89600", cr:69.1, slope:130},
+      hy: {label:"Azules (H)",    short:"AzH",  gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:67.9, slope:127},
+      hb: {label:"Rojas (H)",     short:"RoH",  gender:"H", bg:"#c0392b", ring:"#8b0000", cr:65.1, slope:123},
+      db: {label:"Azules (D)",    short:"AzD",  gender:"D", bg:"#60a5fa", ring:"#3b82f6", cr:72.5, slope:134},
+      dr: {label:"Rojas (D)",     short:"RoD",  gender:"D", bg:"#e74c3c", ring:"#c0392b", cr:70.1, slope:127},
+    },
+  },
+  // ── GC Lengenfeld: Donauland (Par 72) ────────────────────────────────────
+  {
+    id: "gcl_donau", name: "GC Lengenfeld: Donauland", shortName: "GCL·D", unit: "m",
+    holes: [
+      {nr:1,hcp:7,par:4},{nr:2,hcp:15,par:3},{nr:3,hcp:5,par:4},{nr:4,hcp:11,par:4},
+      {nr:5,hcp:13,par:4},{nr:6,hcp:3,par:5},{nr:7,hcp:17,par:4},{nr:8,hcp:9,par:3},{nr:9,hcp:1,par:5},
+      {nr:10,hcp:4,par:4},{nr:11,hcp:12,par:5},{nr:12,hcp:14,par:4},{nr:13,hcp:18,par:3},
+      {nr:14,hcp:10,par:4},{nr:15,hcp:2,par:4},{nr:16,hcp:16,par:3},{nr:17,hcp:6,par:4},{nr:18,hcp:8,par:5},
+    ],
+    holeInfo: [
+      // hw=Gelb, hy=Blau, hb=Rot, dr=Orange (Damen)
+      hi("Loch 1", 368,342,305,null,301), hi("Loch 2", 142,131,121,null,105),
+      hi("Loch 3", 294,289,264,null,261), hi("Loch 4", 293,282,262,null,258),
+      hi("Loch 5", 303,296,272,null,266), hi("Loch 6", 485,464,424,null,396),
+      hi("Loch 7", 230,225,220,null,220), hi("Loch 8", 195,179,162,null,144),
+      hi("Loch 9", 517,500,483,null,462),
+      hi("Loch 10",397,391,360,null,354), hi("Loch 11",541,499,452,null,424),
+      hi("Loch 12",333,325,297,null,284), hi("Loch 13",180,166,151,null,136),
+      hi("Loch 14",369,342,316,null,292), hi("Loch 15",378,362,320,null,307),
+      hi("Loch 16",162,156,134,null,129), hi("Loch 17",370,357,323,null,307),
+      hi("Loch 18",494,489,436,null,431),
+    ],
+    tees: {
+      hw: {label:"Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.9, slope:131},
+      hy: {label:"Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:71.3, slope:131},
+      hb: {label:"Rot",   short:"H·R", gender:"H", bg:"#c0392b", ring:"#8b0000", cr:68.8, slope:124},
+      db: {label:"Damen (Blau)", short:"D·B", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:77.6, slope:136},
+      dr: {label:"Orange",short:"Org", gender:"D", bg:"#f97316", ring:"#c2410c", cr:74.4, slope:132},
+    },
+  },
+  // ── GC Lengenfeld: Kamptal (Par 71) ──────────────────────────────────────
+  {
+    id: "gcl_kamptal", name: "GC Lengenfeld: Kamptal", shortName: "GCL·K", unit: "m",
+    holes: [
+      {nr:1,hcp:5,par:4},{nr:2,hcp:15,par:3},{nr:3,hcp:7,par:4},{nr:4,hcp:11,par:4},
+      {nr:5,hcp:13,par:3},{nr:6,hcp:3,par:5},{nr:7,hcp:9,par:4},{nr:8,hcp:17,par:5},{nr:9,hcp:1,par:4},
+      {nr:10,hcp:14,par:3},{nr:11,hcp:4,par:5},{nr:12,hcp:12,par:4},{nr:13,hcp:2,par:5},
+      {nr:14,hcp:10,par:4},{nr:15,hcp:18,par:3},{nr:16,hcp:8,par:4},{nr:17,hcp:16,par:3},{nr:18,hcp:6,par:4},
+    ],
+    holeInfo: [
+      // hw=Gelb, hy=Blau, hb=Rot, dr=Orange (Damen)
+      hi("Loch 1", 357,344,313,null,313), hi("Loch 2", 180,167,162,null,144),
+      hi("Loch 3", 381,376,370,null,342), hi("Loch 4", 334,327,304,null,285),
+      hi("Loch 5", 176,162,149,null,136), hi("Loch 6", 533,500,446,null,406),
+      hi("Loch 7", 351,335,302,null,288), hi("Loch 8", 470,462,439,null,436),
+      hi("Loch 9", 357,351,314,null,310),
+      hi("Loch 10",140,136,121,null,102), hi("Loch 11",517,462,450,null,404),
+      hi("Loch 12",373,357,330,null,280), hi("Loch 13",504,485,454,null,401),
+      hi("Loch 14",343,327,309,null,291), hi("Loch 15",180,177,159,null,159),
+      hi("Loch 16",304,298,280,null,275), hi("Loch 17",183,163,148,null,133),
+      hi("Loch 18",340,334,323,null,289),
+    ],
+    tees: {
+      hw: {label:"Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.9, slope:132},
+      hy: {label:"Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:70.4, slope:132},
+      hb: {label:"Rot",   short:"H·R", gender:"H", bg:"#c0392b", ring:"#8b0000", cr:68.5, slope:122},
+      db: {label:"Damen (Blau)", short:"D·B", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:77.2, slope:133},
+      dr: {label:"Orange",short:"Org", gender:"D", bg:"#f97316", ring:"#c2410c", cr:74.4, slope:129},
+    },
+  },
+  {
+    id: "mgck", name: "GC Marienburg Köln", shortName: "MGC", unit: "m",
+    holes: [
+      {nr:1,hcp:17,par:4},{nr:2,hcp:7,par:4},{nr:3,hcp:3,par:4},{nr:4,hcp:11,par:3},
+      {nr:5,hcp:15,par:5},{nr:6,hcp:9,par:5},{nr:7,hcp:13,par:3},{nr:8,hcp:5,par:4},
+      {nr:9,hcp:1,par:4},{nr:10,hcp:18,par:4},{nr:11,hcp:8,par:4},{nr:12,hcp:4,par:4},
+      {nr:13,hcp:12,par:3},{nr:14,hcp:16,par:5},{nr:15,hcp:10,par:5},{nr:16,hcp:14,par:3},
+      {nr:17,hcp:6,par:4},{nr:18,hcp:2,par:4},
+    ],
+    holeInfo: [
+      // hw=H·Weiß, hy=H·Gelb, hb=H/D·Blau, dr=D·Rot  (9-Loch 2×gespielt)
+      hi("Loch 1", 340,311,300,null,261), hi("Loch 2", 376,344,334,null,303),
+      hi("Loch 3", 378,332,314,null,278), hi("Loch 4", 160,145,145,null,128),
+      hi("Loch 5", 453,445,419,null,383), hi("Loch 6", 467,444,430,null,378),
+      hi("Loch 7", 177,164,164,null,125), hi("Loch 8", 378,361,319,null,293),
+      hi("Loch 9", 423,400,347,null,330),
+      // Back = same 9 holes, different HCPs
+      hi("Loch 1*",340,311,300,null,261), hi("Loch 2*",376,344,334,null,303),
+      hi("Loch 3*",378,332,314,null,278), hi("Loch 4*",160,145,145,null,128),
+      hi("Loch 5*",453,445,419,null,383), hi("Loch 6*",467,444,430,null,378),
+      hi("Loch 7*",177,164,164,null,125), hi("Loch 8*",378,361,319,null,293),
+      hi("Loch 9*",423,400,347,null,330),
+    ],
+    tees: {
+      hw: {label:"Herren Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:73.6, slope:137},
+      hy: {label:"Herren Gelb",  short:"H·Y", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.4, slope:133},
+      hb: {label:"H/D Blau",     short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:75.4, slope:135},
+      db: {label:"Damen Blau",   short:"D·B", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:69.6, slope:135},
+      dr: {label:"Damen Rot",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:71.6, slope:128},
+    },
+  },
+  // ── GC Morsum auf Sylt (Par 72) ──────────────────────────────────────────
+  {
+    id: "gcm_sylt", name: "GC Morsum auf Sylt", shortName: "GCM", unit: "m",
+    holes: [
+      {nr:1,hcp:7,par:4},{nr:2,hcp:11,par:3},{nr:3,hcp:1,par:4},{nr:4,hcp:5,par:4},
+      {nr:5,hcp:15,par:3},{nr:6,hcp:3,par:5},{nr:7,hcp:17,par:4},{nr:8,hcp:9,par:4},{nr:9,hcp:13,par:5},
+      {nr:10,hcp:4,par:4},{nr:11,hcp:8,par:5},{nr:12,hcp:6,par:4},{nr:13,hcp:14,par:3},
+      {nr:14,hcp:10,par:5},{nr:15,hcp:12,par:4},{nr:16,hcp:16,par:4},{nr:17,hcp:18,par:3},{nr:18,hcp:2,par:4},
+    ],
+    holeInfo: [
+      // hw=Gelb(längster), hy=Blau, dr=Rot(Damen)
+      hi("Loch 1", 349,349,null,null,297), hi("Loch 2", 154,154,null,null,142),
+      hi("Loch 3", 368,319,null,null,319), hi("Loch 4", 368,309,null,null,309),
+      hi("Loch 5", 172,172,null,null,145), hi("Loch 6", 519,438,null,null,438),
+      hi("Loch 7", 275,275,null,null,232), hi("Loch 8", 277,277,null,null,236),
+      hi("Loch 9", 434,370,null,null,370),
+      hi("Loch 10",408,349,null,null,349), hi("Loch 11",449,383,null,null,383),
+      hi("Loch 12",398,340,null,null,340), hi("Loch 13",180,180,null,null,159),
+      hi("Loch 14",469,395,null,null,395), hi("Loch 15",374,319,null,null,319),
+      hi("Loch 16",291,291,null,null,252), hi("Loch 17",152,152,null,null,137),
+      hi("Loch 18",372,372,null,null,316),
+    ],
+    tees: {
+      hw: {label:"Gelb (Herren)", short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:73.0, slope:133},
+      hy: {label:"Blau (Herren)", short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.9, slope:128},
+      hb: {label:"Rot (Damen)",   short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.1, slope:135},
+      db: {label:"Rot (Damen)",   short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.1, slope:135},
+      dr: {label:"Rot (Damen)",   short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.1, slope:135},
+    },
+  },
+  // ── Golf-Club Sylt / Wenningstedt (Par 72 Weiß/Blau, Par 70 Gelb) ─────────
+  // Tees: hw=Weiß(H) CR73.3/127 · hy=Gelb(H) CR71.0/123 · hb=Blau(H) CR72.0/118
+  //        db=Schwarz(D) CR74.5/127 · dr=Rot(D) CR72.1/121
+  // Note: Gelb Par 70 (holes 9+12 are Par4 from Gelb); app uses Par 72 (Weiß)
+  {
+    id: "gcw_sylt",
+    name: "GC Sylt / Wenningstedt",
+    shortName: "GCW",
+    unit: "m",
+    holes: [
+      // hcp = Weiß/Hauptabschlag; hcpByTee: hw/db=Weiß col, hy/dr=Gelb col, hb=Blau col
+      {nr:1, hcp:5, par:4, hcpByTee:{hw:5,hy:3,hb:3,db:5,dr:3}},
+      {nr:2, hcp:17,par:5, hcpByTee:{hw:17,hy:17,hb:17,db:17,dr:17}},
+      {nr:3, hcp:9, par:4, hcpByTee:{hw:9,hy:15,hb:9,db:9,dr:15}},
+      {nr:4, hcp:15,par:3, hcpByTee:{hw:15,hy:11,hb:11,db:15,dr:11}},
+      {nr:5, hcp:1, par:4, hcpByTee:{hw:1,hy:5,hb:1,db:1,dr:5}},
+      {nr:6, hcp:7, par:4, hcpByTee:{hw:7,hy:9,hb:7,db:7,dr:9}},
+      {nr:7, hcp:13,par:4, hcpByTee:{hw:13,hy:7,hb:5,db:13,dr:7}},
+      {nr:8, hcp:11,par:3, hcpByTee:{hw:11,hy:13,hb:13,db:11,dr:13}},
+      {nr:9, hcp:3, par:5, hcpByTee:{hw:3,hy:1,hb:15,db:3,dr:1}},
+      {nr:10,hcp:10,par:4, hcpByTee:{hw:10,hy:10,hb:12,db:10,dr:10}},
+      {nr:11,hcp:6, par:5, hcpByTee:{hw:6,hy:12,hb:6,db:6,dr:12}},
+      {nr:12,hcp:18,par:5, hcpByTee:{hw:18,hy:2,hb:18,db:18,dr:2}},
+      {nr:13,hcp:16,par:3, hcpByTee:{hw:16,hy:16,hb:16,db:16,dr:16}},
+      {nr:14,hcp:4, par:4, hcpByTee:{hw:4,hy:6,hb:2,db:4,dr:6}},
+      {nr:15,hcp:2, par:4, hcpByTee:{hw:2,hy:4,hb:4,db:2,dr:4}},
+      {nr:16,hcp:8, par:4, hcpByTee:{hw:8,hy:8,hb:8,db:8,dr:8}},
+      {nr:17,hcp:14,par:3, hcpByTee:{hw:14,hy:18,hb:14,db:14,dr:18}},
+      {nr:18,hcp:12,par:4, hcpByTee:{hw:12,hy:14,hb:10,db:12,dr:14}},
+    ],
+    holeInfo: [
+      // hw=Weiß(H), hy=Gelb(H), hb=Blau(H), db=Schwarz(D), dr=Rot(D)
+      hi("Loch 1",  400,394,328,362,334),
+      hi("Loch 2",  456,456,409,381,381),
+      hi("Loch 3",  356,308,308,308,266),
+      hi("Loch 4",  154,148,133,133,133),
+      hi("Loch 5",  402,362,362,362,319),
+      hi("Loch 6",  376,330,330,303,303),
+      hi("Loch 7",  363,357,357,322,322),
+      hi("Loch 8",  158,146,134,134,100),
+      hi("Loch 9",  463,416,328,416,328),
+      hi("Loch 10", 302,290,274,274,213),
+      hi("Loch 11", 503,434,434,384,384),
+      hi("Loch 12", 465,395,387,395,358),
+      hi("Loch 13", 186,173,162,162,149),
+      hi("Loch 14", 366,325,325,284,284),
+      hi("Loch 15", 376,341,341,295,295),
+      hi("Loch 16", 331,331,313,313,275),
+      hi("Loch 17", 166,152,152,152,142),
+      hi("Loch 18", 306,292,259,259,259),
+    ],
+    tees: {
+      hw: {label:"Weiß (Herren)",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:73.3, slope:127},
+      hy: {label:"Gelb (Herren)",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.0, slope:123},
+      hb: {label:"Blau (Herren)",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:72.0, slope:118},
+      db: {label:"Schwarz (Damen)",short:"D·S", gender:"D", bg:"#2a2a2a", ring:"#000000", cr:74.5, slope:127},
+      dr: {label:"Rot (Damen)",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.1, slope:121},
+    },
+  },
+  // ── Golf Alcanada, Mallorca (Par 72) ─────────────────────────────────────
+  // 6 tees (5 mapped): 65=hw CR74.5/137, 61=hy CR72.4/135, 58=hb CR70.9/131
+  //                     56=db D CR76.3/133, 52=dr D CR73.7/132
+  // Tee 48 (CR71.0/129, 4822m, D forward) nicht im App-Slot — editierbar via Abschläge-Tab
+  // Alle Distanzen in Metern · VC=Course Rating · VS=Slope
+  {
+    id: "alcanada",
+    name: "Golf Alcanada Mallorca",
+    shortName: "ALC",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:11,par:5},{nr:2, hcp:4, par:4},{nr:3, hcp:12,par:4},{nr:4, hcp:16,par:3},
+      {nr:5, hcp:7, par:4},{nr:6, hcp:17,par:3},{nr:7, hcp:3, par:5},{nr:8, hcp:1, par:4},{nr:9, hcp:5, par:4},
+      {nr:10,hcp:10,par:4},{nr:11,hcp:6, par:5},{nr:12,hcp:8, par:4},{nr:13,hcp:18,par:5},
+      {nr:14,hcp:14,par:3},{nr:15,hcp:13,par:4},{nr:16,hcp:2, par:4},{nr:17,hcp:9, par:3},{nr:18,hcp:15,par:4},
+    ],
+    holeInfo: [
+      // hw=65, hy=61, hb=58, db=56(D), dr=52(D)
+      hi("Hole 1",  458,450,415,401,373),
+      hi("Hole 2",  387,368,352,350,294),
+      hi("Hole 3",  335,314,302,299,280),
+      hi("Hole 4",  188,160,146,132,124),
+      hi("Hole 5",  376,353,343,323,289),
+      hi("Hole 6",  156,137,128,127,106),
+      hi("Hole 7",  579,561,544,542,523),
+      hi("Hole 8",  428,398,384,365,341),
+      hi("Hole 9",  397,374,346,346,324),
+      hi("Hole 10", 363,348,333,333,307),
+      hi("Hole 11", 554,535,517,516,494),
+      hi("Hole 12", 347,324,294,294,280),
+      hi("Hole 13", 514,492,424,410,389),
+      hi("Hole 14", 167,145,142,140,114),
+      hi("Hole 15", 326,297,283,264,244),
+      hi("Hole 16", 435,418,395,335,332),
+      hi("Hole 17", 213,194,181,164,157),
+      hi("Hole 18", 348,325,315,304,270),
+    ],
+    tees: {
+      hw: {label:"Schwarz (65)", short:"65",  gender:"H", bg:"#1c1c1e", ring:"#555555", cr:74.5, slope:137},
+      hy: {label:"Gelb (61)",   short:"61",  gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.4, slope:135},
+      hb: {label:"Weiß (58)",   short:"58",  gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:70.9, slope:131},
+      db: {label:"Damen A (56)",short:"D56", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:76.3, slope:133},
+      dr: {label:"Damen B (52)",short:"D52", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:73.7, slope:132},
+    },
+  },
+  // ── Golf-Club Eifel e.V. (Par 72) ────────────────────────────────────────
+  // Birdiebook: 2 Abschlagpositionen (lang=H·Gelb / kurz=H·Blau+Damen)
+  // Vorgabetabelle: H·Gelb CR72,1/134, H·Blau CR69,7/126, H·Rot CR69,2/121
+  //                 D·Blau CR76,0/131, D·Rot CR74,0/132  (H/D·Grün Par60 ausgelassen)
+  {
+    id: "gce",
+    name: "Golf-Club Eifel",
+    shortName: "GCE",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:17,par:4},{nr:2, hcp:15,par:4},{nr:3, hcp:11,par:5},{nr:4, hcp:5, par:3},
+      {nr:5, hcp:13,par:4},{nr:6, hcp:1, par:4},{nr:7, hcp:3, par:5},{nr:8, hcp:9, par:3},{nr:9, hcp:7, par:4},
+      {nr:10,hcp:14,par:4},{nr:11,hcp:4, par:4},{nr:12,hcp:18,par:3},{nr:13,hcp:8, par:4},
+      {nr:14,hcp:12,par:4},{nr:15,hcp:10,par:5},{nr:16,hcp:6, par:3},{nr:17,hcp:16,par:5},{nr:18,hcp:2, par:4},
+    ],
+    holeInfo: [
+      // hw=H·Gelb(lang), hy=H·Blau(kurz), hb=null, db=D·Blau(kurz), dr=D·Rot(kurz)
+      hi("Bahn 1",  257,220,null,220,220), hi("Bahn 2",  301,275,null,275,275),
+      hi("Bahn 3",  497,426,null,426,426), hi("Bahn 4",  193,171,null,171,171),
+      hi("Bahn 5",  351,311,null,311,311), hi("Bahn 6",  395,357,null,357,357),
+      hi("Bahn 7",  537,474,null,474,474), hi("Bahn 8",  133,120,null,120,120),
+      hi("Bahn 9",  288,253,null,253,253),
+      hi("Bahn 10", 284,254,null,254,254), hi("Bahn 11", 349,297,null,297,297),
+      hi("Bahn 12", 160,138,null,138,138), hi("Bahn 13", 344,308,null,308,308),
+      hi("Bahn 14", 318,304,null,304,304), hi("Bahn 15", 458,401,null,401,401),
+      hi("Bahn 16", 209,185,null,185,185), hi("Bahn 17", 422,372,null,372,372),
+      hi("Bahn 18", 421,364,null,364,364),
+    ],
+    tees: {
+      hw: {label:"Herren Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.1, slope:134},
+      hy: {label:"Herren Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.7, slope:126},
+      hb: {label:"Herren Rot",   short:"H·R", gender:"H", bg:"#c0392b", ring:"#8b0000", cr:69.2, slope:121},
+      db: {label:"Damen Blau",   short:"D·B", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:76.0, slope:131},
+      dr: {label:"Damen Rot",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.0, slope:132},
+    },
+  },
+  // ── Golfclub Budersand Sylt (Par 72) ─────────────────────────────────────
+  {
+    id: "gcb_sylt", name: "Golfclub Budersand Sylt", shortName: "GCB", unit: "m",
+    holes: [
+      {nr:1,hcp:3,par:4},{nr:2,hcp:5,par:4},{nr:3,hcp:11,par:5},{nr:4,hcp:15,par:3},
+      {nr:5,hcp:1,par:4},{nr:6,hcp:17,par:4},{nr:7,hcp:7,par:5},{nr:8,hcp:9,par:3},{nr:9,hcp:13,par:4},
+      {nr:10,hcp:14,par:4},{nr:11,hcp:4,par:4},{nr:12,hcp:16,par:4},{nr:13,hcp:8,par:3},
+      {nr:14,hcp:2,par:4},{nr:15,hcp:18,par:3},{nr:16,hcp:6,par:5},{nr:17,hcp:10,par:5},{nr:18,hcp:12,par:4},
+    ],
+    holeInfo: [
+      // hw=Weiß, hy=Gelb, hb=Blau, db=Rot, dr=Orange
+      hi("Loch 1", 374,370,332,325,299), hi("Loch 2", 346,341,312,306,270),
+      hi("Loch 3", 463,455,422,417,400), hi("Loch 4", 129,125,120,116,111),
+      hi("Loch 5", 396,389,347,342,320), hi("Loch 6", 323,317,270,264,244),
+      hi("Loch 7", 473,466,432,425,399), hi("Loch 8", 163,158,145,139,130),
+      hi("Loch 9", 358,352,339,332,292),
+      hi("Loch 10",357,352,325,314,305), hi("Loch 11",372,365,325,318,300),
+      hi("Loch 12",339,333,309,302,278), hi("Loch 13",154,149,143,139,136),
+      hi("Loch 14",391,386,341,335,311), hi("Loch 15",101,96,92,87,87),
+      hi("Loch 16",459,454,415,409,395), hi("Loch 17",467,457,413,407,392),
+      hi("Loch 18",355,350,321,315,296),
+    ],
+    tees: {
+      hw: {label:"Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:74.0, slope:132},
+      hy: {label:"Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.0, slope:130},
+      hb: {label:"Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.5, slope:126},
+      db: {label:"Rot",   short:"Rot", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.0, slope:128},
+      dr: {label:"Orange",short:"Org", gender:"D", bg:"#f97316", ring:"#c2410c", cr:71.5, slope:122},
+    },
+  },
+  // ── Golfclub Burg Overbach (Par 72) ─────────────────────────────────────────
+  // Herren CR 72.0 / Slope 136  ·  Damen CR 73.9 / Slope 132
+  // Alle Distanzen in Metern · Scorekarte 22.08.2026
+  {
+    id: "gbo",
+    name: "Golfclub Burg Overbach",
+    shortName: "GBO",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:7, par:4},{nr:2, hcp:9, par:3},{nr:3, hcp:1, par:4},{nr:4, hcp:5, par:4},
+      {nr:5, hcp:11,par:5},{nr:6, hcp:17,par:3},{nr:7, hcp:3, par:4},{nr:8, hcp:15,par:4},{nr:9, hcp:13,par:5},
+      {nr:10,hcp:8, par:4},{nr:11,hcp:12,par:3},{nr:12,hcp:6, par:4},{nr:13,hcp:2, par:4},
+      {nr:14,hcp:18,par:3},{nr:15,hcp:4, par:4},{nr:16,hcp:16,par:5},{nr:17,hcp:10,par:4},{nr:18,hcp:14,par:5},
+    ],
+    holeInfo: [
+      // hw=Herren, db/dr=Damen; hy/hb keine weiteren Abschläge auf Karte
+      hi("Loch 1",  340,null,null,303,303), hi("Loch 2",  163,null,null,149,149),
+      hi("Loch 3",  341,null,null,297,297), hi("Loch 4",  347,null,null,301,301),
+      hi("Loch 5",  435,null,null,387,387), hi("Loch 6",  140,null,null,115,115),
+      hi("Loch 7",  346,null,null,309,309), hi("Loch 8",  343,null,null,283,283),
+      hi("Loch 9",  495,null,null,442,442),
+      hi("Loch 10", 350,null,null,311,311), hi("Loch 11", 181,null,null,165,165),
+      hi("Loch 12", 349,null,null,318,318), hi("Loch 13", 372,null,null,329,329),
+      hi("Loch 14", 119,null,null,103,103), hi("Loch 15", 321,null,null,310,310),
+      hi("Loch 16", 455,null,null,405,405), hi("Loch 17", 349,null,null,307,307),
+      hi("Loch 18", 509,null,null,452,452),
+    ],
+    tees: {
+      hw: {label:"Herren Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.0, slope:136},
+      hy: {label:"Herren Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:71.0, slope:132},
+      hb: {label:"Herren Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:69.5, slope:128},
+      db: {label:"Damen",        short:"D",   gender:"D", bg:"#c0392b", ring:"#8b0000", cr:73.9, slope:132},
+      dr: {label:"Damen Vorne",  short:"D·V", gender:"D", bg:"#f97316", ring:"#c2410c", cr:71.5, slope:128},
+    },
+  },
+  // ── Gut Lärchenhof ── alle 5 Abschläge in Metern (Scorekarte 2024)
+  {
+    id: "gcgl", name: "Gut Lärchenhof", shortName: "GCGL", unit: "m",
+    holes: [
+      {nr:1,hcp:15,par:4},{nr:2,hcp:13,par:4},{nr:3,hcp:11,par:5},{nr:4,hcp:17,par:3},
+      {nr:5,hcp:5,par:4},{nr:6,hcp:3,par:4},{nr:7,hcp:1,par:5},{nr:8,hcp:9,par:3},
+      {nr:9,hcp:7,par:4},{nr:10,hcp:8,par:4},{nr:11,hcp:16,par:3},{nr:12,hcp:12,par:4},
+      {nr:13,hcp:14,par:5},{nr:14,hcp:2,par:4},{nr:15,hcp:18,par:5},{nr:16,hcp:10,par:3},
+      {nr:17,hcp:6,par:4},{nr:18,hcp:4,par:4},
+    ],
+    holeInfo: [
+      // hw=H·Weiß, hy=H·Gelb, hb=H·Schwarz, db=D·Schwarz(=gleiche Position), dr=D·Rot
+      hi("Easy Going",       326,308,285,285,276),
+      hi("Bridges",          353,333,311,311,270),
+      hi("Downwind",         500,478,439,439,385),
+      hi("Toads",            173,162,141,141,121),
+      hi("Wild Boar Run",    377,350,328,328,295),
+      hi("East End",         398,370,355,355,308),
+      hi("Up And Down",      528,503,481,481,459),
+      hi("Apple-Trees",      197,186,172,172,141),
+      hi("Happy Hour",       379,358,329,329,283),
+      hi("Second Chance",    381,354,333,333,306),
+      hi("Hazel-Nut Corner", 144,144,123,123,105),
+      hi("Hidden Green",     354,333,314,314,288),
+      hi("The Oaks",         475,459,440,440,395),
+      hi("Sun Valley",       416,391,367,367,326),
+      hi("The Peak",         475,454,432,432,396),
+      hi("Lake View",        177,165,151,151,133),
+      hi("Waterfall",        320,304,295,295,254),
+      hi("Homerun",          383,363,338,338,311),
+    ],
+    tees: {
+      hw: {label:"Herren Weiß",    short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:73.8, slope:135},
+      hy: {label:"Herren Gelb",    short:"H·Y", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.8, slope:133},
+      hb: {label:"Herren Schwarz", short:"H·S", gender:"H", bg:"#2a2a2a", ring:"#000000", cr:70.0, slope:130},
+      db: {label:"Damen Schwarz",  short:"D·S", gender:"D", bg:"#2a2a2a", ring:"#000000", cr:76.2, slope:138},
+      dr: {label:"Damen Rot",      short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.4, slope:131},
+    },
+  },
+  // ── Kölner Golfclub: Championship Course (Par 72) ────────────────────────
+  {
+    id: "kgc_champ", name: "Kölner GC: Championship", shortName: "KGC·C", unit: "m",
+    holes: [
+      {nr:1,hcp:9,par:4},{nr:2,hcp:11,par:5},{nr:3,hcp:17,par:3},{nr:4,hcp:3,par:4},
+      {nr:5,hcp:5,par:4},{nr:6,hcp:13,par:5},{nr:7,hcp:15,par:4},{nr:8,hcp:1,par:4},{nr:9,hcp:7,par:3},
+      {nr:10,hcp:12,par:4},{nr:11,hcp:8,par:5},{nr:12,hcp:4,par:4},{nr:13,hcp:14,par:4},
+      {nr:14,hcp:16,par:4},{nr:15,hcp:18,par:3},{nr:16,hcp:10,par:5},{nr:17,hcp:6,par:3},{nr:18,hcp:2,par:4},
+    ],
+    holeInfo: [
+      // hw=Weiß(H), hy=Gelb(He·Da), hb=Blau(He·Da), db=Rot(He·Da), dr=Orange
+      hi("Loch 1", 335,312,286,266,195), hi("Loch 2", 473,455,437,389,356),
+      hi("Loch 3", 76, 76, 76, 60, 60), hi("Loch 4", 434,413,366,335,268),
+      hi("Loch 5", 450,422,385,360,299), hi("Loch 6", 454,432,416,402,317),
+      hi("Loch 7", 292,270,251,231,155), hi("Loch 8", 402,386,366,358,277),
+      hi("Loch 9", 159,139,120,120,81),
+      hi("Loch 10",306,277,256,229,229), hi("Loch 11",485,462,438,388,342),
+      hi("Loch 12",445,447,422,390,360), hi("Loch 13",316,297,277,252,229),
+      hi("Loch 14",315,299,268,237,223), hi("Loch 15",116,116,110,93, 90),
+      hi("Loch 16",500,492,458,381,330), hi("Loch 17",154,139,125,110,92),
+      hi("Loch 18",306,297,278,255,231),
+    ],
+    tees: {
+      hw: {label:"Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:73.2, slope:139},
+      hy: {label:"Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.1, slope:133},
+      hb: {label:"Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:70.3, slope:125},
+      db: {label:"Rot",   short:"Rot", gender:"H", bg:"#c0392b", ring:"#8b0000", cr:67.6, slope:117},
+      dr: {label:"Orange",short:"Org", gender:"D", bg:"#f97316", ring:"#c2410c", cr:66.0, slope:112},
+    },
+  },
+  // ── Kölner Golfclub: Links Course (Par 63) ───────────────────────────────
+  {
+    id: "kgc_links", name: "Kölner GC: Links Course", shortName: "KGC·L", unit: "m",
+    holes: [
+      {nr:1,hcp:3,par:4},{nr:2,hcp:5,par:3},{nr:3,hcp:17,par:3},{nr:4,hcp:7,par:4},
+      {nr:5,hcp:9,par:4},{nr:6,hcp:1,par:3},{nr:7,hcp:11,par:4},{nr:8,hcp:13,par:3},{nr:9,hcp:15,par:4},
+      {nr:10,hcp:14,par:3},{nr:11,hcp:10,par:4},{nr:12,hcp:6,par:3},{nr:13,hcp:8,par:4},
+      {nr:14,hcp:16,par:3},{nr:15,hcp:4,par:3},{nr:16,hcp:18,par:4},{nr:17,hcp:12,par:3},{nr:18,hcp:2,par:4},
+    ],
+    holeInfo: [
+      // hw=Weiß(H), hy=Gelb(He·Da), hb=Blau(He·Da), db=Rot, dr=Orange/kürzest
+      hi("Loch 1", 282,282,261,230,214), hi("Loch 2", 134,134,125,107,101),
+      hi("Loch 3", 112,112,102,79, 71), hi("Loch 4", 274,274,257,241,220),
+      hi("Loch 5", 248,248,230,212,192), hi("Loch 6", 190,177,156,138,124),
+      hi("Loch 7", 225,225,213,191,172), hi("Loch 8", 120,120,113,95, 90),
+      hi("Loch 9", 253,253,240,224,203),
+      hi("Loch 10",127,127,110,105,85), hi("Loch 11",250,250,229,212,196),
+      hi("Loch 12",170,170,157,145,128), hi("Loch 13",289,289,269,246,229),
+      hi("Loch 14",96, 96, 86, 74, 66), hi("Loch 15",310,310,295,264,244),
+      hi("Loch 16",112,112,101,86, 78), hi("Loch 17",137,137,123,108,97),
+      hi("Loch 18",298,298,285,247,237),
+    ],
+    tees: {
+      hw: {label:"Weiß",  short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:61.8, slope:116},
+      hy: {label:"Gelb",  short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:61.8, slope:116},
+      hb: {label:"Blau",  short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:60.9, slope:111},
+      db: {label:"Rot",   short:"Rot", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:59.2, slope:103},
+      dr: {label:"Orange",short:"Org", gender:"D", bg:"#f97316", ring:"#c2410c", cr:59.2, slope:103},
+    },
+  },
+  // ── Magna Marbella Golf (Par 56 · 9 Loch 2×) ───────────────────────────────
+  // Kurzplatz · alle Par 3 außer Loch 8 (Par 4) · gespielt als 9+9
+  // Nur Amarillas-Abschlag bekannt: CR 55.8 · Slope 74 · Par 56
+  // Front HCPs (ungerade), Back HCPs (gerade = Front+1)
+  {
+    id: "magna_marbella",
+    name: "Magna Marbella Golf",
+    shortName: "MAG",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:15,par:3},{nr:2, hcp:1, par:3},{nr:3, hcp:17,par:3},{nr:4, hcp:13,par:3},
+      {nr:5, hcp:9, par:3},{nr:6, hcp:11,par:3},{nr:7, hcp:7, par:3},{nr:8, hcp:5, par:4},{nr:9, hcp:3, par:3},
+      {nr:10,hcp:16,par:3},{nr:11,hcp:2, par:3},{nr:12,hcp:18,par:3},{nr:13,hcp:14,par:3},
+      {nr:14,hcp:10,par:3},{nr:15,hcp:12,par:3},{nr:16,hcp:8, par:3},{nr:17,hcp:6, par:4},{nr:18,hcp:4, par:3},
+    ],
+    holeInfo: [
+      // Amarillas-Tee (hw) · andere Abschläge nicht auf Karte → editierbar
+      hi("Loch 1",  160,null,null,null,null), hi("Loch 2",  178,null,null,null,null),
+      hi("Loch 3",  119,null,null,null,null), hi("Loch 4",  122,null,null,null,null),
+      hi("Loch 5",  141,null,null,null,null), hi("Loch 6",  162,null,null,null,null),
+      hi("Loch 7",  148,null,null,null,null), hi("Loch 8",  237,null,null,null,null),
+      hi("Loch 9",  162,null,null,null,null),
+      hi("Loch 1*", 160,null,null,null,null), hi("Loch 2*", 178,null,null,null,null),
+      hi("Loch 3*", 119,null,null,null,null), hi("Loch 4*", 122,null,null,null,null),
+      hi("Loch 5*", 141,null,null,null,null), hi("Loch 6*", 162,null,null,null,null),
+      hi("Loch 7*", 148,null,null,null,null), hi("Loch 8*", 237,null,null,null,null),
+      hi("Loch 9*", 162,null,null,null,null),
+    ],
+    tees: {
+      hw: {label:"Amarillas",    short:"Amar", gender:"H", bg:"#f0c800", ring:"#b89600", cr:55.8, slope:74},
+      hy: {label:"Andere (bitte CR/Slope anpassen)", short:"—", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:55.0, slope:72},
+      hb: {label:"Andere",      short:"—",    gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:54.0, slope:70},
+      db: {label:"Damen A",     short:"D·A",  gender:"D", bg:"#60a5fa", ring:"#3b82f6", cr:58.0, slope:76},
+      dr: {label:"Damen B",     short:"D·B",  gender:"D", bg:"#c0392b", ring:"#8b0000", cr:56.0, slope:72},
+    },
+  },
+  // ── Marine Golf Club Sylt (Par 73) ───────────────────────────────────────
+  {
+    id: "mgcs_sylt", name: "Marine Golf Club Sylt", shortName: "MGS", unit: "m",
+    holes: [
+      {nr:1,hcp:8,par:5},{nr:2,hcp:16,par:4},{nr:3,hcp:6,par:3},{nr:4,hcp:4,par:4},
+      {nr:5,hcp:14,par:5},{nr:6,hcp:12,par:4},{nr:7,hcp:18,par:3},{nr:8,hcp:2,par:4},{nr:9,hcp:10,par:5},
+      {nr:10,hcp:9,par:4},{nr:11,hcp:3,par:4},{nr:12,hcp:17,par:4},{nr:13,hcp:15,par:3},
+      {nr:14,hcp:7,par:5},{nr:15,hcp:5,par:4},{nr:16,hcp:11,par:3},{nr:17,hcp:13,par:4},{nr:18,hcp:1,par:5},
+    ],
+    holeInfo: [
+      // hw=Weiß, hy=Gelb, hb=Blau, dr=Rot
+      hi("B1",463,436,407,null,369), hi("B2",301,277,256,null,236),
+      hi("B3",187,151,143,null,136), hi("B4",376,346,324,null,299),
+      hi("B5",466,437,425,null,378), hi("B6",351,322,289,null,273),
+      hi("B7",184,153,143,null,138), hi("B8",403,367,359,null,327),
+      hi("B9",455,433,390,null,356),
+      hi("A1",329,329,320,null,290), hi("A2",405,382,347,null,322),
+      hi("A3",281,261,248,null,230), hi("A4",148,139,128,null,122),
+      hi("A5",555,505,466,null,429), hi("A6",387,370,347,null,312),
+      hi("A7",207,173,165,null,144), hi("A8",325,319,297,null,292),
+      hi("A9",488,470,452,null,415),
+    ],
+    tees: {
+      hw: {label:"Weiß (Herren)", short:"H·W", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:75.2, slope:143},
+      hy: {label:"Gelb (Herren)", short:"H·G", gender:"H", bg:"#f0c800", ring:"#b89600", cr:73.0, slope:139},
+      hb: {label:"Blau (Herren)", short:"H·B", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:71.1, slope:131},
+      db: {label:"Blau (Damen)",  short:"D·B", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:77.3, slope:143},
+      dr: {label:"Rot (Damen)",   short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.5, slope:136},
+    },
+  },
+  // ── GC Marienburg Köln (9-Loch, 2× gespielt = 18 Loch) ──────────────────
+  // ── Rio Real Golf & Hotel Marbella (Par 72) ─────────────────────────────
+  // 4 tees (A=61/longest → D=51/shortest); distances in meters from scorecard
+  {
+    id: "rioreal",
+    name: "Rio Real Golf Marbella",
+    shortName: "RIO",
+    unit: "m",
+    holes: [
+      {nr:1,hcp:15,par:4},{nr:2,hcp:11,par:4},{nr:3,hcp:17,par:3},{nr:4,hcp:5,par:4},
+      {nr:5,hcp:1,par:4},{nr:6,hcp:13,par:3},{nr:7,hcp:3,par:5},{nr:8,hcp:7,par:4},{nr:9,hcp:9,par:5},
+      {nr:10,hcp:8,par:4},{nr:11,hcp:16,par:4},{nr:12,hcp:14,par:3},{nr:13,hcp:4,par:5},
+      {nr:14,hcp:12,par:3},{nr:15,hcp:2,par:4},{nr:16,hcp:6,par:5},{nr:17,hcp:18,par:4},{nr:18,hcp:10,par:4},
+    ],
+    holeInfo: [
+      // hw=Tee A(61), hy=Tee B(58), hb=Tee C(55), db=Tee D(51 H), dr=Tee D(51 D)
+      hi("Loch 1", 307,285,265,250,250), hi("Loch 2", 348,332,324,267,267),
+      hi("Loch 3", 133,127,109,92, 92),  hi("Loch 4", 391,380,367,328,328),
+      hi("Loch 5", 372,355,347,308,308), hi("Loch 6", 150,136,127,86, 86),
+      hi("Loch 7", 442,430,411,396,396), hi("Loch 8", 394,391,365,352,352),
+      hi("Loch 9", 456,446,420,389,389),
+      hi("Loch 10",328,310,294,287,287), hi("Loch 11",324,320,309,297,297),
+      hi("Loch 12",152,145,129,123,123), hi("Loch 13",498,491,447,437,437),
+      hi("Loch 14",163,154,133,116,116), hi("Loch 15",409,392,369,338,338),
+      hi("Loch 16",501,482,465,448,448), hi("Loch 17",317,307,289,271,271),
+      hi("Loch 18",366,350,324,290,290),
+    ],
+    tees: {
+      hw: {label:"Tee A – Amarillo", short:"A",   gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.9, slope:139},
+      hy: {label:"Tee B – Blanco",   short:"B",   gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:70.9, slope:137},
+      hb: {label:"Tee C – Azul",     short:"C",   gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:68.9, slope:130},
+      db: {label:"Tee D – Rojo (H)", short:"D·H", gender:"H", bg:"#c0392b", ring:"#8b0000", cr:66.9, slope:123},
+      dr: {label:"Tee D – Rojo (D)", short:"D·D", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.0, slope:131},
+    },
+  },
+  // ── Shangri-La Hambantota Golf Resort (Par 70, USGA) ─────────────────────
+  // Distances in yards (USGA totals: Blue 5924, White 5481, Red 4507)
+  // Tees: hw=Blue(Men) 68.9/127, hy=White(Men) 67.0/123,
+  //        hb=Blue(Women) 75.2/137, db=White(Women) 72.3/131, dr=Red(Women) 66.9/113
+  {
+    id: "shl_hamba",
+    name: "Shangri-La Hambantota",
+    shortName: "SHL",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:7, par:4},{nr:2, hcp:5, par:4},{nr:3, hcp:18,par:4},{nr:4, hcp:3, par:3},
+      {nr:5, hcp:16,par:4},{nr:6, hcp:14,par:4},{nr:7, hcp:4, par:5},{nr:8, hcp:9, par:3},{nr:9, hcp:11,par:4},
+      {nr:10,hcp:10,par:4},{nr:11,hcp:1, par:5},{nr:12,hcp:17,par:3},{nr:13,hcp:15,par:4},
+      {nr:14,hcp:12,par:3},{nr:15,hcp:6, par:5},{nr:16,hcp:8, par:4},{nr:17,hcp:2, par:4},{nr:18,hcp:13,par:3},
+    ],
+    holeInfo: [
+      // All distances converted from yards ×0.9144, rounded to whole meters
+      // hw=Blue(Men), hy=White(Men), hb=Blue(Women), db=White(Women), dr=Red(Women)
+      hi("Hole 1",  363,315,363,315,257), hi("Hole 2",  386,366,386,366,301),
+      hi("Hole 3",  280,248,280,248,206), hi("Hole 4",  180,166,180,166,140),
+      hi("Hole 5",  334,325,334,325,260), hi("Hole 6",  347,311,347,311,230),
+      hi("Hole 7",  445,439,445,439,385), hi("Hole 8",  133,120,133,120,103),
+      hi("Hole 9",  284,262,284,262,187),
+      hi("Hole 10", 321,304,321,304,247), hi("Hole 11", 471,436,471,436,391),
+      hi("Hole 12", 130,108,130,108, 85), hi("Hole 13", 298,269,298,269,210),
+      hi("Hole 14", 130,109,130,109, 95), hi("Hole 15", 452,437,452,437,349),
+      hi("Hole 16", 319,305,319,305,210), hi("Hole 17", 379,346,379,346,288),
+      hi("Hole 18", 166,147,166,147,130),
+    ],
+    tees: {
+      hw: {label:"Blue (Men)",   short:"B·M", gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:68.9, slope:127},
+      hy: {label:"White (Men)",  short:"W·M", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:67.0, slope:123},
+      hb: {label:"Blue (Women)", short:"B·W", gender:"D", bg:"#60a5fa", ring:"#3b82f6", cr:75.2, slope:137},
+      db: {label:"White (Women)",short:"W·W", gender:"D", bg:"#f0f0f0", ring:"#cccccc", cr:72.3, slope:131},
+      dr: {label:"Red (Women)",  short:"R·W", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:66.9, slope:113},
+    },
+  },
+];
+
+const DEFAULT_PLAYERS     = ["Player 1","Player 2","Player 3","Player 4"];
+const DEFAULT_PLAYER_HCP  = ["18","18","18","18"];
+const DEFAULT_PLAYER_TEES = ["hw","hy","hy","hy"];
+const DEFAULT_SCORES      = () => Array.from({length:4}, () => Array(18).fill(""));
+const SAVE_KEY            = "gcgl_round_v24";
+const HISTORY_KEY         = "gcgl_history_v1";
+const APP_VERSION         = "v24";
+const MAX_HISTORY         = 20;
+const HCP_OPTS            = Array.from({length:18}, (_,i) => i+1);
+
+// ── Round history helpers ─────────────────────────────────────────────────────
+function loadHistory() {
+  try { const r = localStorage.getItem(HISTORY_KEY); return r ? JSON.parse(r) : []; } catch { return []; }
+}
+function saveHistory(entry) {
+  try {
+    const hist = loadHistory();
+    hist.unshift(entry);                          // newest first
+    if (hist.length > MAX_HISTORY) hist.splice(MAX_HISTORY);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+  } catch {}
+}
+
+// Always keep user-edited courses, but append any new DEFAULT_COURSES not yet in saved list
+function mergeCourses(saved) {
+  if (!saved || !Array.isArray(saved)) return DEFAULT_COURSES;
+  const savedIds = new Set(saved.map(c => c.id));
+  const newOnes  = DEFAULT_COURSES.filter(c => !savedIds.has(c.id));
+  return [...saved, ...newOnes];
+}
+
+function newBlankCourse(name, shortName, unit) {
+  return {
+    id: "c_" + Date.now(),
+    name, shortName: shortName || name.slice(0,4).toUpperCase(), unit: unit || "m",
+    holes: Array.from({length:18}, (_,i) => ({nr:i+1, hcp:i+1, par:4})),
+    holeInfo: Array.from({length:18}, (_,i) => hi(`Loch ${i+1}`, 350,null,null,null,null)),
+    tees: JSON.parse(JSON.stringify(DEFAULT_COURSES[0].tees)),
+  };
+}
+
+// ── localStorage ──────────────────────────────────────────────────────────────
+function loadSaved() {
+  try { const r = localStorage.getItem(SAVE_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+
+// ── Pure helpers ──────────────────────────────────────────────────────────────
+// PHI = round( HCI × Slope/113 + (CR − Par) )
+function calcPlayingHcp(hcpIndex, teeObj, par) {
+  const idx = parseFloat(String(hcpIndex ?? "0").replace(",", ".")) || 0;
+  if (!teeObj) return Math.round(idx);
+  return Math.round(idx * (teeObj.slope / 113) + (teeObj.cr - par));
+}
+function strokesOnHole(playingHcp, holeHcp) {
+  const hcp = Math.floor(playingHcp || 0);
+  if (hcp <= 0) return 0;
+  const full = Math.floor(hcp / 18), rem = hcp % 18;
+  return full + (rem > 0 && holeHcp <= rem ? 1 : 0);
+}
+// Per-tee HCP: if hole has hcpByTee map, use it; else fall back to hole.hcp
+function holeHcpForTee(hole, teeKey) {
+  return hole.hcpByTee?.[teeKey] ?? hole.hcp;
+}
+function stablefordPts(netDiff) { return Math.max(0, 2 - netDiff); }
+function diffLabel(d) { return d === 0 ? "E" : d > 0 ? `+${d}` : `${d}`; }
+
+// ── WHS / DGV HCP-Berechnung ──────────────────────────────────────────────────
+// Score Differential = (113 / Slope) × (Brutto − CR)
+function calcScoreDiff(gross, cr, slope) {
+  if (!gross || gross <= 0) return null;
+  return Math.round((gross - cr) * 113 / slope * 10) / 10;
+}
+// Vereinfachte neue HCI-Schätzung für eine Runde (DGV-Näherung: Δ × 0,1)
+function calcNewHCI(hciStr, diff) {
+  if (diff === null) return null;
+  const hci = parseFloat(String(hciStr).replace(",", ".")) || 0;
+  return Math.round((hci + 0.1 * (diff - hci)) * 10) / 10;
+}
+// Spielvorgabe-Schlag-Label
+function sLabel(extra) { return extra === 0 ? "" : extra === 1 ? "●" : "●●"; }
+
+// ── Style helpers ─────────────────────────────────────────────────────────────
+const cs = (extra = {}) => ({
+  padding:"0 2px", textAlign:"center", borderRight:`1px solid ${LINE}`,
+  height:38, verticalAlign:"middle", fontSize:13, ...extra,
+});
+const CS_HO  = cs({fontWeight:"bold", fontSize:14, color:G, cursor:"pointer"});
+const CS_HCP = cs({cursor:"pointer"});
+const CS_PAR = cs({cursor:"pointer"});
+
+// ── TeeSwatch ─────────────────────────────────────────────────────────────────
+function TeeSwatch({teeKey, size=10, tees}) {
+  const t = (tees?.[teeKey]) ?? DEFAULT_COURSES[0].tees[teeKey] ?? DEFAULT_COURSES[0].tees.hw;
+  return (
+    <span style={{
+      display:"inline-block", width:size, height:size, borderRadius:"50%",
+      background:t.bg, border:`1.5px solid ${t.ring}`,
+      boxShadow:"0 1px 3px rgba(0,0,0,0.25)", flexShrink:0,
+    }}/>
+  );
+}
+
+// ── ScoreBadge ────────────────────────────────────────────────────────────────
+const ScoreBadge = memo(function ScoreBadge({val, par}) {
+  if (val===""||val===undefined) return null;
+  if (val==="NR") return <span style={{fontSize:13,color:MUTED,fontWeight:"bold",fontFamily:"monospace"}}>—</span>;
+  const s=parseInt(val), d=s-par;
+  const base={display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,fontSize:13,fontWeight:"700",fontFamily:"monospace"};
+  if (d<=-2) return <span style={{...base,color:RED,border:`2px solid ${RED}`,borderRadius:"50%",outline:`2px solid ${RED}`,outlineOffset:2}}>{s}</span>;
+  if (d===-1) return <span style={{...base,color:RED,border:`2px solid ${RED}`,borderRadius:"50%"}}>{s}</span>;
+  if (d===0)  return <span style={{...base,color:TEXT}}>{s}</span>;
+  if (d===1)  return <span style={{...base,color:TEXT,border:`2px solid ${TEXT}`}}>{s}</span>;
+  if (d===2)  return <span style={{...base,color:TEXT,border:`2px solid ${TEXT}`,outline:`2px solid ${TEXT}`,outlineOffset:2}}>{s}</span>;
+  return <span style={{...base,color:"#7c3aed",border:"2px solid #7c3aed",borderRadius:3}}>{s}</span>;
+});
+
+// ── EditableCell (for CR/Slope inputs in course manager) ──────────────────────
+function EditableCell({value, onChange, onBlur}) {
+  const [f, setF] = useState(false);
+  return (
+    <input type="text" inputMode="decimal" value={value}
+      onChange={e => onChange(e.target.value)}
+      onFocus={() => setF(true)}
+      onBlur={() => { setF(false); onBlur(); }}
+      style={{
+        width:52, border:"none", outline:"none", padding:"3px 2px",
+        textAlign:"center", fontFamily:"monospace", fontSize:15, fontWeight:"bold",
+        color:f?GOLD:G, cursor:"text",
+        background:f?"rgba(201,168,76,0.12)":"transparent",
+        borderBottom:`1.5px solid ${f?GOLD:LINE}`,
+        borderRadius:f?"4px 4px 0 0":0,
+      }}
+    />
+  );
+}
+
+// ── CourseManagerModal ────────────────────────────────────────────────────────
+const CourseManagerModal = memo(function CourseManagerModal({
+  courses, activeCourseId, totalPar,
+  onSwitchCourse, onUpdateTee, onAddCourse, onClose,
+}) {
+  const [tab, setTab]       = useState("list"); // "list" | "tees" | "add"
+  const [newName, setNewName]   = useState("");
+  const [newShort, setNewShort] = useState("");
+  const [newUnit, setNewUnit]   = useState("m");
+
+  const ac = courses.find(c => c.id === activeCourseId) || courses[0];
+
+  // Draft CR/Slope for the active course
+  const makeDraft = (course) =>
+    Object.fromEntries(TEE_KEYS.map(k => [k, {
+      cr: String(course.tees[k]?.cr ?? ""),
+      slope: String(course.tees[k]?.slope ?? ""),
+    }]));
+  const [draft, setDraft] = useState(() => makeDraft(ac));
+  useEffect(() => { setDraft(makeDraft(ac)); }, [activeCourseId]);
+
+  function handleDraftChange(key, field, raw) {
+    setDraft(d => ({...d, [key]: {...d[key], [field]: raw}}));
+  }
+  function handleDraftBlur(key, field) {
+    const num = parseFloat(draft[key][field].replace(",","."));
+    if (isNaN(num)) { setDraft(d => ({...d, [key]: {...d[key], [field]: String(ac.tees[key][field])}})); return; }
+    const val = field==="cr" ? Math.round(num*10)/10 : Math.max(55, Math.min(155, Math.round(num)));
+    onUpdateTee(key, field, val);
+    setDraft(d => ({...d, [key]: {...d[key], [field]: String(val)}}));
+  }
+
+  const tabBtn = (key, label) => (
+    <button key={key} onClick={() => setTab(key)} style={{
+      flex:1, padding:"8px 4px", background:tab===key?"#fff":"transparent",
+      color:tab===key?G:"rgba(255,255,255,0.6)", border:"none", cursor:"pointer",
+      fontSize:12, fontFamily:"Georgia, serif", fontWeight:tab===key?"bold":"normal",
+      borderRadius:tab===key?"4px 4px 0 0":0,
+    }}>{label}</button>
+  );
+
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:1200,background:"rgba(0,0,0,0.65)",display:"flex",alignItems:"center",justifyContent:"center",padding:12}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:16,width:"100%",maxWidth:390,overflow:"hidden",boxShadow:"0 20px 60px rgba(0,0,0,0.45)",maxHeight:"92vh",display:"flex",flexDirection:"column"}}>
+
+        {/* Header */}
+        <div style={{background:G,padding:"14px 18px 0",flexShrink:0}}>
+          <div style={{fontSize:9,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase"}}>Golfplatz-Manager</div>
+          <div style={{fontSize:19,color:"#fff",fontWeight:"normal",marginTop:2,marginBottom:10}}>{ac.name}</div>
+          <div style={{display:"flex"}}>
+            {tabBtn("list","⛳ Plätze")}
+            {tabBtn("tees","📐 Abschläge")}
+            {tabBtn("add","＋ Neuer Platz")}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{overflowY:"auto",flex:1}}>
+
+          {/* ── PLÄTZE tab ── */}
+          {tab==="list" && (
+            <div style={{padding:"12px 14px 8px"}}>
+              {courses.map(c => {
+                const isActive = c.id === activeCourseId;
+                const cPar = c.holes.reduce((a,h)=>a+h.par,0);
+                return (
+                  <button key={c.id} onClick={() => { if (!isActive) onSwitchCourse(c.id); setTab("tees"); }}
+                    style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 14px",marginBottom:8,borderRadius:10,border:`2px solid ${isActive?G:LINE}`,background:isActive?"#edf6f0":"transparent",cursor:"pointer",fontFamily:"Georgia, serif",textAlign:"left"}}>
+                    <div style={{width:40,height:40,borderRadius:8,background:isActive?G:"#e8e2d4",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <span style={{fontSize:18}}>⛳</span>
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:15,color:TEXT,fontWeight:isActive?"bold":"normal",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</div>
+                      <div style={{fontSize:11,color:MUTED,marginTop:1}}>Par {cPar} · 18 Holes · {c.unit}</div>
+                    </div>
+                    {isActive
+                      ? <span style={{fontSize:13,color:G,fontWeight:"bold",flexShrink:0}}>● Aktiv →</span>
+                      : <span style={{fontSize:18,color:MUTED,flexShrink:0}}>›</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ── ABSCHLÄGE tab ── */}
+          {tab==="tees" && (
+            <div style={{padding:"14px 14px 8px"}}>
+              <div style={{fontSize:9,color:MUTED,letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:8}}>
+                {ac.name} · CR &amp; Slope editierbar
+              </div>
+              <table style={{width:"100%",borderCollapse:"collapse"}}>
+                <thead>
+                  <tr style={{borderBottom:`2px solid ${LINE}`}}>
+                    <th style={{textAlign:"left",fontSize:10,color:MUTED,fontWeight:"normal",paddingBottom:4,width:"44%"}}>Abschlag</th>
+                    <th style={{textAlign:"center",fontSize:10,color:MUTED,fontWeight:"normal",paddingBottom:4}}>CR</th>
+                    <th style={{textAlign:"center",fontSize:10,color:MUTED,fontWeight:"normal",paddingBottom:4}}>Slope</th>
+                    <th style={{textAlign:"center",fontSize:10,color:MUTED,fontWeight:"normal",paddingBottom:4}}>PHI*</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TEE_KEYS.map(key => {
+                    const t    = ac.tees[key];
+                    const phi  = calcPlayingHcp(18, t, totalPar);
+                    return (
+                      <tr key={key} style={{borderBottom:`1px solid ${LINE}`}}>
+                        <td style={{padding:"8px 0"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:7}}>
+                            <TeeSwatch teeKey={key} size={13} tees={ac.tees}/>
+                            <div>
+                              <div style={{fontSize:13,color:TEXT}}>{t.label}</div>
+                              <div style={{fontSize:10,color:MUTED}}>{t.gender==="H"?"Herren":"Damen"}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{textAlign:"center",padding:"4px 2px"}}>
+                          <EditableCell value={draft[key].cr} onChange={v=>handleDraftChange(key,"cr",v)} onBlur={()=>handleDraftBlur(key,"cr")}/>
+                        </td>
+                        <td style={{textAlign:"center",padding:"4px 2px"}}>
+                          <EditableCell value={draft[key].slope} onChange={v=>handleDraftChange(key,"slope",v)} onBlur={()=>handleDraftBlur(key,"slope")}/>
+                        </td>
+                        <td style={{textAlign:"center",fontSize:13,color:MUTED,fontFamily:"monospace"}}>{phi}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div style={{marginTop:10,padding:"8px 10px",background:"#f0ece2",borderRadius:8,fontSize:10,color:MUTED,lineHeight:1.6}}>
+                <strong>* PHI-Beispiel</strong> bei HCI 18<br/>
+                <em>PHI = runden( HCI × Slope ÷ 113 + (CR − Par) )</em>
+              </div>
+            </div>
+          )}
+
+          {/* ── NEUER PLATZ tab ── */}
+          {tab==="add" && (
+            <div style={{padding:"16px 16px 8px"}}>
+              <div style={{fontSize:11,color:MUTED,marginBottom:14,lineHeight:1.6}}>
+                Erstelle einen neuen Platz. Par, HCP, CR und Slope können danach bearbeitet werden.
+              </div>
+
+              <div style={{marginBottom:12}}>
+                <div style={{fontSize:10,color:MUTED,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>Platzname *</div>
+                <input value={newName} onChange={e=>{
+                  setNewName(e.target.value);
+                  if (!newShort) setNewShort(e.target.value.slice(0,4).toUpperCase());
+                }}
+                  placeholder="z.B. GC Köln"
+                  style={{width:"100%",border:`1px solid ${LINE}`,borderRadius:8,padding:"10px 12px",fontSize:15,fontFamily:"Georgia, serif",outline:"none",background:CARD}}/>
+              </div>
+
+              <div style={{marginBottom:12}}>
+                <div style={{fontSize:10,color:MUTED,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>Kürzel (max. 5 Zeichen)</div>
+                <input value={newShort} onChange={e=>setNewShort(e.target.value.toUpperCase().slice(0,5))}
+                  placeholder="GCK"
+                  style={{width:"100%",border:`1px solid ${LINE}`,borderRadius:8,padding:"10px 12px",fontSize:15,fontFamily:"Georgia, serif",outline:"none",background:CARD}}/>
+              </div>
+
+              <div style={{marginBottom:18}}>
+                <div style={{fontSize:10,color:MUTED,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:8}}>Distanz-Einheit</div>
+                <div style={{display:"flex",gap:8}}>
+                  {[["m","Meter"],["yd","Yards"]].map(([val,label]) => (
+                    <button key={val} onClick={()=>setNewUnit(val)}
+                      style={{flex:1,padding:"10px",border:`2px solid ${newUnit===val?G:LINE}`,borderRadius:8,background:newUnit===val?"#edf6f0":"transparent",color:newUnit===val?G:MUTED,cursor:"pointer",fontFamily:"Georgia, serif",fontSize:14}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                disabled={!newName.trim()}
+                onClick={() => {
+                  onAddCourse(newName.trim(), newShort.trim() || newName.trim().slice(0,4).toUpperCase(), newUnit);
+                  setNewName(""); setNewShort(""); setNewUnit("m");
+                  onClose();
+                }}
+                style={{width:"100%",padding:"13px",background:newName.trim()?G:"#ccc",border:"none",borderRadius:10,color:"#fff",fontSize:15,cursor:newName.trim()?"pointer":"default",fontFamily:"Georgia, serif",fontWeight:"bold"}}>
+                ＋ Platz anlegen &amp; laden
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button onClick={onClose} style={{width:"100%",padding:"13px",background:"transparent",border:"none",borderTop:`1px solid ${LINE}`,color:MUTED,fontSize:13,cursor:"pointer",fontFamily:"Georgia, serif",flexShrink:0}}>
+          Schließen
+        </button>
+      </div>
+    </div>
+  );
+});
+
+// ── TeePickerModal ────────────────────────────────────────────────────────────
+const TeePickerModal = memo(function TeePickerModal({playerName, currentTee, tees, onSelect, onClose}) {
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:1100,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:"20px 20px 0 0",width:"100%",maxWidth:420,overflow:"hidden",boxShadow:"0 -10px 40px rgba(0,0,0,0.3)"}}>
+        <div style={{background:G,padding:"14px 20px"}}>
+          <div style={{fontSize:9,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase"}}>Abschlag &amp; Geschlecht</div>
+          <div style={{fontSize:17,color:"#fff",marginTop:2}}>{playerName}</div>
+        </div>
+        <div style={{padding:"12px 16px 32px",display:"flex",flexDirection:"column",gap:8}}>
+          {TEE_KEYS.map(key => {
+            const t=tees[key], active=key===currentTee;
+            return (
+              <button key={key} onClick={()=>{onSelect(key);onClose();}}
+                style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:10,border:`2px solid ${active?G:LINE}`,background:active?"#edf6f0":"transparent",cursor:"pointer",fontFamily:"Georgia, serif",textAlign:"left"}}>
+                <TeeSwatch teeKey={key} size={20} tees={tees}/>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:15,color:TEXT,fontWeight:active?"bold":"normal"}}>{t.label}</div>
+                  <div style={{fontSize:11,color:MUTED,marginTop:1}}>CR {t.cr} · Slope {t.slope} · {t.gender==="H"?"Herren":"Damen"}</div>
+                </div>
+                {active && <span style={{color:G,fontSize:18,fontWeight:"bold"}}>✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ── StepperModal ──────────────────────────────────────────────────────────────
+const StepperModal = memo(function StepperModal({hole, holeInfo, playerName, currentVal, onSave, onClose}) {
+  const sv = currentVal===""?hole.par:currentVal==="NR"?0:parseInt(currentVal);
+  const [val, setVal] = useState(sv);
+  const inc  = useCallback(()=>setVal(v=>Math.min(20,v===0?1:v+1)),[]);
+  const dec  = useCallback(()=>setVal(v=>v<=1?0:v-1),[]);
+  const save = useCallback(()=>{onSave(val===0?"NR":String(val));onClose();},[val,onSave,onClose]);
+  const clr  = useCallback(()=>{onSave("");onClose();},[onSave,onClose]);
+  const diff = val===0?null:val-hole.par;
+  const dc   = diff===null?MUTED:diff<0?RED:diff===0?G:"#92400e";
+  const pc   = hole.par===3?"#1d4ed8":hole.par===5?"#92400e":G;
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:"20px 20px 0 0",width:"100%",maxWidth:420,overflow:"hidden",boxShadow:"0 -10px 40px rgba(0,0,0,0.3)"}}>
+        <div style={{background:G,padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontSize:9,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase"}}>
+              Hole {hole.nr} · Par <span style={{color:pc===G?"#fff":pc}}>{hole.par}</span> · HCP {hole.hcp}
+            </div>
+            <div style={{fontSize:16,color:"#fff",fontWeight:"normal",marginTop:2}}>{holeInfo?.name}</div>
+          </div>
+          <div style={{fontSize:12,color:"rgba(255,255,255,0.7)"}}>{playerName}</div>
+        </div>
+        <div style={{padding:"28px 20px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+          <button onClick={dec} style={{width:72,height:72,borderRadius:"50%",background:val===0?"#e8e2d4":"#f0ebe0",border:`2px solid ${LINE}`,fontSize:36,color:val===0?LINE:TEXT,cursor:val===0?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"300",flexShrink:0}}>−</button>
+          <div style={{flex:1,textAlign:"center"}}>
+            {val===0?(
+              <div>
+                <div style={{fontSize:52,fontWeight:"bold",color:MUTED,fontFamily:"monospace",lineHeight:1}}>—</div>
+                <div style={{fontSize:13,color:MUTED,marginTop:6}}>aufgenommen</div>
+              </div>
+            ):(
+              <div>
+                <div style={{fontSize:64,fontWeight:"bold",color:diff===0?G:diff<0?RED:diff===1?TEXT:"#7c3aed",fontFamily:"monospace",lineHeight:1}}>{val}</div>
+                <div style={{fontSize:15,color:dc,marginTop:4,fontWeight:"bold"}}>
+                  {diff===0?"Par":diff===-1?"Birdie":diff<=-2?"Eagle 🦅":diff===1?"Bogey":diff===2?"Doppel-Bogey":`+${diff}`}
+                </div>
+              </div>
+            )}
+          </div>
+          <button onClick={inc} style={{width:72,height:72,borderRadius:"50%",background:G,border:"none",fontSize:36,color:"#fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"300",flexShrink:0,boxShadow:"0 4px 12px rgba(26,71,49,0.4)"}}>+</button>
+        </div>
+        <div style={{display:"flex",gap:10,padding:"0 20px 32px"}}>
+          <button onClick={clr}  style={{flex:1,padding:"13px",background:"transparent",border:`1px solid ${LINE}`,borderRadius:10,color:MUTED,fontSize:14,cursor:"pointer",fontFamily:"Georgia, serif"}}>Löschen</button>
+          <button onClick={save} style={{flex:2,padding:"13px",background:G,border:"none",borderRadius:10,color:"#fff",fontSize:16,cursor:"pointer",fontFamily:"Georgia, serif",fontWeight:"bold",boxShadow:"0 4px 12px rgba(26,71,49,0.35)"}}>✓ Speichern</button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ── HoleModal ─────────────────────────────────────────────────────────────────
+const HoleModal = memo(function HoleModal({holeNr, hole, holeInfo, tees, onClose}) {
+  const pc = hole.par===3?"#1d4ed8":hole.par===5?"#92400e":G;
+  const distances = holeInfo?.distances ?? {};
+  const hasDists  = Object.values(distances).some(v => v != null);
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.55)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:16,width:"100%",maxWidth:310,overflow:"hidden",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
+        {/* Header */}
+        <div style={{background:G,padding:"14px 18px"}}>
+          <div style={{fontSize:9,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:3}}>Hole {holeNr}</div>
+          <div style={{fontSize:20,color:"#fff",fontWeight:"normal"}}>{holeInfo?.name}</div>
+        </div>
+        {/* Par / HCP strip */}
+        <div style={{display:"flex",borderBottom:`1px solid ${LINE}`}}>
+          {[{l:"Par",v:hole.par,c:pc},{l:"HCP",v:hole.hcp,c:MUTED}].map(({l,v,c})=>(
+            <div key={l} style={{flex:1,textAlign:"center",padding:"12px 8px",borderRight:`1px solid ${LINE}`}}>
+              <div style={{fontSize:28,fontWeight:"bold",color:c,fontFamily:"monospace"}}>{v}</div>
+              <div style={{fontSize:10,color:MUTED,letterSpacing:"0.1em",textTransform:"uppercase",marginTop:2}}>{l}</div>
+            </div>
+          ))}
+        </div>
+        {/* Per-tee distances */}
+        {hasDists && (
+          <div style={{padding:"10px 14px 6px"}}>
+            <div style={{fontSize:9,color:MUTED,letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:7}}>
+              Entfernungen in Metern
+            </div>
+            {TEE_KEYS.map(key => {
+              const d = distances[key];
+              if (d == null) return null;
+              const t = tees?.[key];
+              if (!t) return null;
+              return (
+                <div key={key} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:`1px solid ${LINE}`}}>
+                  <TeeSwatch teeKey={key} size={12} tees={tees}/>
+                  <span style={{flex:1,fontSize:13,color:TEXT}}>{t.label}</span>
+                  <span style={{fontSize:16,fontWeight:"bold",fontFamily:"monospace",color:G}}>{d} m</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {!hasDists && holeInfo?.dist && (
+          <div style={{padding:"12px 14px",textAlign:"center",borderBottom:`1px solid ${LINE}`}}>
+            <div style={{fontSize:24,fontWeight:"bold",fontFamily:"monospace",color:TEXT}}>{holeInfo.dist} m</div>
+            <div style={{fontSize:10,color:MUTED,marginTop:2}}>
+              vom {tees?.[holeInfo.fromTee]?.label ?? "Abschlag"}
+            </div>
+          </div>
+        )}
+        <button onClick={onClose} style={{width:"100%",padding:"13px",background:"transparent",border:"none",color:MUTED,fontSize:13,cursor:"pointer",fontFamily:"Georgia, serif"}}>
+          Schließen
+        </button>
+      </div>
+    </div>
+  );
+});
+
+// ── ConfirmModal ──────────────────────────────────────────────────────────────
+const ConfirmModal = memo(function ConfirmModal({message, confirmLabel, onConfirm, onCancel}) {
+  return (
+    <div onClick={onCancel} style={{position:"fixed",inset:0,zIndex:2000,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:16,width:"100%",maxWidth:280,padding:"24px 20px",textAlign:"center",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
+        <div style={{fontSize:28,marginBottom:12}}>⛳</div>
+        <div style={{fontSize:14,color:TEXT,marginBottom:20,lineHeight:1.6}}>{message}</div>
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={onCancel}  style={{flex:1,padding:"12px",background:"transparent",border:`1px solid ${LINE}`,borderRadius:8,color:MUTED,fontSize:13,cursor:"pointer",fontFamily:"Georgia, serif"}}>Abbruch</button>
+          <button onClick={onConfirm} style={{flex:1,padding:"12px",background:G,border:"none",borderRadius:8,color:"#fff",fontSize:13,cursor:"pointer",fontFamily:"Georgia, serif",fontWeight:"bold"}}>{confirmLabel}</button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ── GolfScorecard ─────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// ── ScoreDetailModal ──────────────────────────────────────────────────────────
+const ScoreDetailModal = memo(function ScoreDetailModal({
+  playerName, playerHcp, playerTeeKey, tees,
+  scores, holes, holeInfo, playingHcp, totalPar, unit, onClose,
+}) {
+  const tee = tees[playerTeeKey] || Object.values(tees)[0];
+
+  // Per-hole data
+  const rows = holes.map((hole, hi) => {
+    const val   = scores[hi];
+    const extra = strokesOnHole(playingHcp, holeHcpForTee(hole, playerTeeKey));
+    const gross = (val !== "" && val !== "NR") ? parseInt(val) : null;
+    const net   = gross !== null ? gross - extra : null;
+    const pts   = val === "NR" ? 0 : net !== null ? stablefordPts(net - hole.par) : null;
+    return { hole, val, extra, gross, net, pts };
+  });
+
+  // Totals
+  const played18 = rows.filter(r => r.gross !== null).length;
+  const played9f  = rows.slice(0,9).filter(r => r.gross !== null).length;
+  const played9b  = rows.slice(9,18).filter(r => r.gross !== null).length;
+  const bruttoAll = rows.reduce((a,r) => a + (r.gross||0), 0);
+  const nettoAll  = rows.reduce((a,r) => a + (r.net||0), 0);
+  const stblAll   = rows.reduce((a,r) => a + (r.pts||0), 0);
+  const bruttoF   = rows.slice(0,9).reduce((a,r) => a + (r.gross||0), 0);
+  const bruttoB   = rows.slice(9).reduce((a,r) => a + (r.gross||0), 0);
+  const parF      = holes.slice(0,9).reduce((a,h)=>a+h.par,0);
+  const parB      = holes.slice(9).reduce((a,h)=>a+h.par,0);
+
+  // Determine round type and compute score diff + new HCI
+  const is18 = played18 >= 15;
+  const is9f = !is18 && played9f >= 7;
+  const is9b = !is18 && !is9f && played9b >= 7;
+  const roundLabel = is18 ? "18 Loch" : is9f ? "9 Loch (Front)" : is9b ? "9 Loch (Back)" : null;
+
+  let diff = null, newHci = null, usedBrutto = null, usedCR = null, usedSlope = null;
+  if (is18 && bruttoAll > 0) {
+    usedBrutto = bruttoAll; usedCR = tee.cr; usedSlope = tee.slope;
+    diff   = calcScoreDiff(bruttoAll, tee.cr, tee.slope);
+    newHci = calcNewHCI(playerHcp, diff);
+  } else if (is9f && bruttoF > 0) {
+    usedBrutto = bruttoF; usedCR = Math.round(tee.cr/2*10)/10; usedSlope = tee.slope;
+    diff   = calcScoreDiff(bruttoF, usedCR, tee.slope);
+    newHci = calcNewHCI(playerHcp, diff);
+  } else if (is9b && bruttoB > 0) {
+    usedBrutto = bruttoB; usedCR = Math.round(tee.cr/2*10)/10; usedSlope = tee.slope;
+    diff   = calcScoreDiff(bruttoB, usedCR, tee.slope);
+    newHci = calcNewHCI(playerHcp, diff);
+  }
+
+  const hciNum  = parseFloat(String(playerHcp).replace(",",".")) || 0;
+  const hciDelta = newHci !== null ? Math.round((newHci - hciNum)*10)/10 : null;
+
+  const colH = {fontSize:10,color:MUTED,fontWeight:"normal",textAlign:"center",padding:"3px 2px",borderBottom:`1px solid ${LINE}`};
+  const colD = (extra={}) => ({textAlign:"center",padding:"4px 2px",fontSize:13,borderBottom:`1px solid #f0ece4`,...extra});
+
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:1100,background:"rgba(0,0,0,0.65)",display:"flex",alignItems:"center",justifyContent:"center",padding:10}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:16,width:"100%",maxWidth:420,maxHeight:"92vh",display:"flex",flexDirection:"column",overflow:"hidden",boxShadow:"0 20px 60px rgba(0,0,0,0.4)"}}>
+
+        {/* Header */}
+        <div style={{background:G,padding:"14px 16px",flexShrink:0}}>
+          <div style={{fontSize:9,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase"}}>Scorekarte</div>
+          <div style={{fontSize:19,color:"#fff",marginTop:2}}>{playerName}</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+            <TeeSwatch teeKey={playerTeeKey} size={11} tees={tees}/>
+            <span style={{fontSize:11,color:"rgba(255,255,255,0.55)"}}>{tee.label}</span>
+            <span style={{fontSize:11,color:GOLD,marginLeft:"auto"}}>HCI {hciNum} · PHI {playingHcp}</span>
+          </div>
+        </div>
+
+        {/* Hole table */}
+        <div style={{overflowY:"auto",flex:1}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead>
+              <tr style={{background:"#f0ece4"}}>
+                <th style={{...colH,textAlign:"left",paddingLeft:8}}>Loch</th>
+                <th style={colH}>Par</th>
+                <th style={colH}>HCP</th>
+                <th style={colH}>Vg.</th>
+                <th style={colH}>Score</th>
+                <th style={colH}>Netto</th>
+                <th style={colH}>Pkt.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({hole, val, extra, gross, net, pts}, i) => {
+                const isBack = i === 9;
+                const rowBg  = i%2===0 ? CARD : "#faf6f0";
+                const pc     = hole.par===3?"#1d4ed8":hole.par===5?"#92400e":TEXT;
+                const sc     = gross===null ? MUTED : gross-hole.par < 0 ? RED : gross-hole.par===0 ? G : "#92400e";
+                return (
+                  <React.Fragment key={hole.nr}>
+                    {isBack && (
+                      <tr style={{background:"#e8e2d4"}}>
+                        <td style={{...colD({fontWeight:"bold",color:G,fontSize:11}),textAlign:"left",paddingLeft:8}}>OUT</td>
+                        <td style={colD({fontWeight:"bold",color:G})}>{parF}</td>
+                        <td style={colD()}/>
+                        <td style={colD()}/>
+                        <td style={colD({fontWeight:"bold"})}>{bruttoF||"—"}</td>
+                        <td style={colD()}/>
+                        <td style={colD({fontWeight:"bold",color:"#16a34a"})}>{rows.slice(0,9).reduce((a,r)=>a+(r.pts||0),0)}</td>
+                      </tr>
+                    )}
+                    <tr style={{background:rowBg}}>
+                      <td style={{...colD({fontWeight:"bold",color:G,fontSize:13}),textAlign:"left",paddingLeft:8}}>{hole.nr}</td>
+                      <td style={colD({color:pc,fontWeight:"bold"})}>{hole.par}</td>
+                      <td style={colD({color:MUTED,fontSize:11})}>{hole.hcp}</td>
+                      <td style={colD({color:GOLD,fontSize:11,fontWeight:"bold"})}>{extra > 0 ? "●".repeat(extra) : "—"}</td>
+                      <td style={colD({fontWeight:"bold",color:sc})}>
+                        {val === "" ? <span style={{color:LINE}}>—</span>
+                          : val === "NR" ? <span style={{color:MUTED,fontSize:11}}>NR</span>
+                          : <span>{gross}</span>}
+                      </td>
+                      <td style={colD({color:MUTED,fontFamily:"monospace"})}>{net !== null ? net : "—"}</td>
+                      <td style={colD({fontWeight:"bold",color:pts===null?LINE:pts>=2?"#16a34a":pts===1?G:RED,fontFamily:"monospace"})}>
+                        {pts !== null ? pts : "—"}
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                );
+              })}
+              {/* IN + Total */}
+              <tr style={{background:"#e8e2d4"}}>
+                <td style={{...colD({fontWeight:"bold",color:G,fontSize:11}),textAlign:"left",paddingLeft:8}}>IN</td>
+                <td style={colD({fontWeight:"bold",color:G})}>{parB}</td>
+                <td style={colD()}/><td style={colD()}/>
+                <td style={colD({fontWeight:"bold"})}>{bruttoB||"—"}</td>
+                <td style={colD()}/>
+                <td style={colD({fontWeight:"bold",color:"#16a34a"})}>{rows.slice(9).reduce((a,r)=>a+(r.pts||0),0)}</td>
+              </tr>
+              <tr style={{background:G}}>
+                <td style={{...colD({fontWeight:"bold",color:"#fff",fontSize:12}),textAlign:"left",paddingLeft:8}}>TOT</td>
+                <td style={colD({fontWeight:"bold",color:GOLD})}>{totalPar}</td>
+                <td style={colD()}/><td style={colD()}/>
+                <td style={colD({fontWeight:"bold",color:"#fff",fontSize:15})}>{bruttoAll||"—"}</td>
+                <td style={colD({fontWeight:"bold",color:GOLD,fontSize:13})}>{nettoAll||"—"}</td>
+                <td style={colD({fontWeight:"bold",color:"#86efac",fontSize:15})}>{stblAll}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* HCP-Berechnung */}
+          <div style={{padding:"14px 14px 8px",borderTop:`2px solid ${LINE}`}}>
+            <div style={{fontSize:10,color:MUTED,letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:10}}>
+              Neue HCI-Schätzung {roundLabel ? `(${roundLabel})` : ""}
+            </div>
+            {diff !== null ? (
+              <>
+                {/* Formel */}
+                <div style={{background:"#f0ece4",borderRadius:8,padding:"10px 12px",fontSize:11,color:TEXT,lineHeight:1.8,marginBottom:10}}>
+                  <div style={{color:MUTED,marginBottom:2,fontSize:10}}>Score Differential (WHS)</div>
+                  <div style={{fontFamily:"monospace",fontSize:12}}>
+                    ({usedBrutto} − {usedCR}) × 113 ÷ {usedSlope}
+                  </div>
+                  <div style={{fontFamily:"monospace",fontSize:13,color:G,fontWeight:"bold",marginTop:2}}>
+                    = {diff > 0 ? "+" : ""}{diff}
+                  </div>
+                  <div style={{color:MUTED,marginTop:6,marginBottom:2,fontSize:10}}>Neue HCI (Näherung)</div>
+                  <div style={{fontFamily:"monospace",fontSize:12}}>
+                    {hciNum} + 0,1 × ({diff} − {hciNum})
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+                    <span style={{fontFamily:"monospace",fontSize:18,fontWeight:"bold",color:newHci<=hciNum?G:RED}}>
+                      {newHci}
+                    </span>
+                    <span style={{fontSize:13,color:hciDelta<=0?"#16a34a":"#ef4444",fontWeight:"bold"}}>
+                      {hciDelta <= 0 ? `▼ ${Math.abs(hciDelta)}` : `▲ +${hciDelta}`}
+                    </span>
+                    <span style={{fontSize:10,color:MUTED}}>(war: {hciNum})</span>
+                  </div>
+                </div>
+                <div style={{fontSize:9,color:MUTED,lineHeight:1.5,padding:"0 2px"}}>
+                  ⚠ Näherungswert für eine Runde. Offizielle HCI-Anpassung erfolgt durch den DGV über die EGA-Vorgabenstelle (beste 8 aus 20 Runden × 0,96).
+                </div>
+              </>
+            ) : (
+              <div style={{fontSize:12,color:MUTED,fontStyle:"italic",padding:"4px 0"}}>
+                {played18 + played9f + played9b > 0
+                  ? `Zu wenig Löcher für eine HCI-Schätzung (${played18 || played9f || played9b} gespielt).`
+                  : "Noch kein Score eingetragen."}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button onClick={onClose} style={{width:"100%",padding:"13px",background:"transparent",border:"none",borderTop:`1px solid ${LINE}`,color:MUTED,fontSize:13,cursor:"pointer",fontFamily:"Georgia, serif",flexShrink:0}}>
+          Schließen
+        </button>
+      </div>
+    </div>
+  );
+});
+
+// ── HistoryModal ──────────────────────────────────────────────────────────────
+const HistoryModal = memo(function HistoryModal({ownerName, onClose}) {
+  const [history, setHistory] = useState(() => loadHistory());
+
+  function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    setHistory([]);
+  }
+
+  const hasDelta = (d) => d !== null && d !== undefined;
+  const fmtDelta = (d) => {
+    if (!hasDelta(d)) return null;
+    const n = Math.round(d * 10) / 10;
+    const col = n <= 0 ? "#86efac" : "#fca5a5";
+    return <span style={{color:col,fontWeight:"bold"}}>{n <= 0 ? `▼${Math.abs(n)}` : `▲+${n}`}</span>;
+  };
+
+  const thS = {fontSize:8,color:MUTED,fontWeight:"normal",textAlign:"center",padding:"4px 3px",
+               borderBottom:`1px solid ${LINE}`,letterSpacing:"0.07em",textTransform:"uppercase"};
+  const tdS = (extra={}) => ({textAlign:"center",padding:"5px 3px",fontSize:10,
+               borderBottom:`1px solid #f0ece4`,...extra});
+
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:1200,background:"rgba(0,0,0,0.65)",
+         display:"flex",alignItems:"center",justifyContent:"center",padding:10}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:16,width:"100%",
+           maxWidth:420,maxHeight:"92vh",display:"flex",flexDirection:"column",overflow:"hidden",
+           boxShadow:"0 20px 60px rgba(0,0,0,0.4)"}}>
+
+        {/* Header */}
+        <div style={{background:G,padding:"14px 16px",flexShrink:0}}>
+          <div style={{fontSize:9,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase"}}>Rundenhistorie · Owner</div>
+          <div style={{fontSize:19,color:"#fff",marginTop:2}}>{ownerName}</div>
+          <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",marginTop:3}}>
+            Letzte {MAX_HISTORY} Runden · Player 1
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{overflowY:"auto",flex:1}}>
+          {history.length === 0 ? (
+            <div style={{padding:32,textAlign:"center",color:MUTED}}>
+              <div style={{fontSize:32,marginBottom:12}}>⛳</div>
+              <div style={{fontSize:14}}>Noch keine abgeschlossenen Runden.</div>
+              <div style={{fontSize:11,marginTop:8}}>
+                Eine Runde wird gespeichert wenn du auf<br/>"New Round" tippst (mind. 15 Löcher gespielt).
+              </div>
+            </div>
+          ) : (
+            <>
+              <table style={{width:"100%",borderCollapse:"collapse"}}>
+                <thead>
+                  <tr style={{background:BG}}>
+                    <th style={{...thS,textAlign:"left",paddingLeft:10,width:"28%"}}>Datum / Platz</th>
+                    <th style={thS}>HCI</th>
+                    <th style={thS}>Par</th>
+                    <th style={thS}>Brutto</th>
+                    <th style={thS}>Netto</th>
+                    <th style={thS}>Stbl.</th>
+                    <th style={thS}>Neue HCI</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((r, i) => (
+                    <tr key={i} style={{background: i%2===0 ? CARD : "#faf6f0"}}>
+                      <td style={{...tdS({textAlign:"left",paddingLeft:10})}}>
+                        <div style={{fontSize:9,color:MUTED}}>{r.date}</div>
+                        <div style={{fontSize:10,color:G,fontWeight:"bold",
+                             overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:100}}>
+                          {r.shortName || r.course}
+                        </div>
+                        <div style={{fontSize:9,color:MUTED}}>{r.tee}</div>
+                      </td>
+                      <td style={tdS({fontFamily:"monospace",color:GOLD,fontWeight:"bold"})}>{r.hci}</td>
+                      <td style={tdS({color:MUTED})}>{r.par}</td>
+                      <td style={tdS({fontFamily:"monospace",fontWeight:"bold",
+                           color: r.gross-r.par < 0 ? RED : r.gross-r.par===0 ? G : "#92400e"})}>
+                        {r.gross}
+                        <div style={{fontSize:8,color:MUTED}}>{r.gross>0?diffLabel(r.gross-r.par):""}</div>
+                      </td>
+                      <td style={tdS({fontFamily:"monospace",color:GOLD})}>{r.netto}</td>
+                      <td style={tdS({fontFamily:"monospace",color:"#16a34a",fontWeight:"bold"})}>{r.stableford}</td>
+                      <td style={tdS()}>
+                        {r.newHci !== null ? (
+                          <div>
+                            <div style={{fontSize:11,fontFamily:"monospace",fontWeight:"bold",
+                                 color: r.hciDelta<=0?"#16a34a":"#ef4444"}}>{r.newHci}</div>
+                            <div style={{fontSize:9}}>{fmtDelta(r.hciDelta)}</div>
+                          </div>
+                        ) : <span style={{color:MUTED}}>—</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Summary */}
+              {history.length >= 2 && (() => {
+                const valid = history.filter(r=>r.gross>0);
+                const avgGross = valid.length ? Math.round(valid.reduce((a,r)=>a+r.gross,0)/valid.length) : null;
+                const avgStbl  = valid.length ? Math.round(valid.reduce((a,r)=>a+r.stableford,0)/valid.length*10)/10 : null;
+                const best     = valid.length ? Math.min(...valid.map(r=>r.gross)) : null;
+                return (
+                  <div style={{padding:"12px 14px",background:BG,margin:"8px 8px",borderRadius:8,
+                               border:`1px solid ${LINE}`}}>
+                    <div style={{fontSize:9,color:MUTED,letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:8}}>
+                      Zusammenfassung ({valid.length} Runden)
+                    </div>
+                    <div style={{display:"flex",gap:0}}>
+                      {[
+                        ["Ø Brutto", avgGross, "#fff"],
+                        ["Best", best, GOLD],
+                        ["Ø Stblfd", avgStbl, "#86efac"],
+                        ["Akt. HCI", history[0]?.hci, GOLD],
+                      ].map(([lbl,val,col])=>(
+                        <div key={lbl} style={{flex:1,textAlign:"center",padding:"6px 4px",
+                             borderRight:`1px solid ${LINE}`}}>
+                          <div style={{fontSize:10,color:MUTED,marginBottom:2}}>{lbl}</div>
+                          <div style={{fontSize:16,fontWeight:"bold",color:col,fontFamily:"monospace"}}>{val??'—'}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <button onClick={clearHistory}
+                style={{width:"calc(100% - 16px)",margin:"4px 8px 8px",padding:"10px",
+                        background:"transparent",border:`1px solid ${LINE}`,borderRadius:8,
+                        color:MUTED,fontSize:11,cursor:"pointer",fontFamily:"Georgia, serif"}}>
+                🗑 Verlauf löschen
+              </button>
+            </>
+          )}
+        </div>
+
+        <button onClick={onClose} style={{width:"100%",padding:"13px",background:"transparent",
+          border:"none",borderTop:`1px solid ${LINE}`,color:MUTED,fontSize:13,cursor:"pointer",
+          fontFamily:"Georgia, serif",flexShrink:0}}>
+          Schließen
+        </button>
+      </div>
+    </div>
+  );
+});
+
+function GolfScorecard() {
+  const _s = loadSaved();
+
+  const [courses,       setCourses]       = useState(() => mergeCourses(_s?.courses));
+  const [activeCourseId,setActiveCourseId]= useState(() => _s?.activeCourseId ?? "gcgl");
+  const [playerNames,   setPlayerNames]   = useState(() => _s?.playerNames    ?? DEFAULT_PLAYERS);
+  const [playerHcps,    setPlayerHcps]    = useState(() => _s?.playerHcps     ?? DEFAULT_PLAYER_HCP);
+  const [playerTees,    setPlayerTees]    = useState(() => _s?.playerTees     ?? DEFAULT_PLAYER_TEES);
+  const [scores,        setScores]        = useState(() => _s?.scores         ?? DEFAULT_SCORES());
+  const [savedAt,       setSavedAt]       = useState(() => _s?.savedAt        ?? null);
+
+  const [half,          setHalf]          = useState("front");
+  const [editingName,   setEditingName]   = useState(null);
+  const [nameVal,       setNameVal]       = useState("");
+  const [editingPar,    setEditingPar]    = useState(null);
+  const [editingHcp,    setEditingHcp]    = useState(null);
+  const [holeModal,     setHoleModal]     = useState(null);
+  const [stepper,       setStepper]       = useState(null);
+  const [teePicker,     setTeePicker]     = useState(null);
+  const [courseModal,   setCourseModal]   = useState(false);
+  const [confirmNew,    setConfirmNew]    = useState(false);
+  const [confirmReset,  setConfirmReset]  = useState(false);
+  const [scoreDetail,   setScoreDetail]   = useState(null);
+  const [historyModal,  setHistoryModal]  = useState(false);
+  const [toast,         setToast]         = useState(null);
+  const nameRef = useRef(null);
+
+  useEffect(()=>{ if (editingName!==null) nameRef.current?.focus(); },[editingName]);
+
+  // Auto-save
+  useEffect(()=>{
+    try {
+      const ts = new Date().toISOString();
+      localStorage.setItem(SAVE_KEY, JSON.stringify({courses,activeCourseId,playerNames,playerHcps,playerTees,scores,savedAt:ts}));
+      setSavedAt(ts);
+    } catch {}
+  },[courses,activeCourseId,scores,playerNames,playerHcps,playerTees]);
+
+  // ── Active course (derived) ───────────────────────────────────────────────
+  const activeCourse = useMemo(
+    ()=>courses.find(c=>c.id===activeCourseId) ?? courses[0],
+    [courses, activeCourseId]
+  );
+  const holes    = activeCourse.holes;
+  const holeInfo = activeCourse.holeInfo;
+  const tees     = activeCourse.tees;
+
+  const frontPar     = useMemo(()=>holes.slice(0,9).reduce((a,h)=>a+h.par,0),[holes]);
+  const backPar      = useMemo(()=>holes.slice(9,18).reduce((a,h)=>a+h.par,0),[holes]);
+  const totalPar     = frontPar + backPar;
+  const offset       = half==="back"?9:0;
+  const displayHoles = useMemo(()=>half==="front"?holes.slice(0,9):half==="back"?holes.slice(9,18):holes,[half,holes]);
+  const fmtSaved     = useMemo(()=>savedAt?new Date(savedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):null,[savedAt]);
+
+  const playingHcps  = useMemo(
+    ()=>playerHcps.map((hci,i)=>calcPlayingHcp(hci,tees[playerTees[i]],totalPar)),
+    [playerHcps,playerTees,tees,totalPar]
+  );
+
+  // ── Callbacks ─────────────────────────────────────────────────────────────
+  const showToast = useCallback(msg=>{setToast(msg);setTimeout(()=>setToast(null),2500);},[]);
+
+  const setScore = useCallback((pi,hi,val)=>
+    setScores(s=>{const n=s.map(r=>[...r]);n[pi][hi]=val;return n;}),[]);
+
+  const setPlayerHcp = useCallback((pi,val)=>
+    setPlayerHcps(h=>{const n=[...h];n[pi]=val;return n;}),[]);
+
+  const commitPlayerHcp = useCallback(pi=>{
+    setPlayerHcps(h=>{
+      const n=[...h];
+      const v=parseFloat(n[pi].replace(",","."))||0;
+      const c=Math.max(0,Math.min(54,v));
+      n[pi]=Number.isInteger(c)?String(c):c.toFixed(1);
+      return n;
+    });
+  },[]);
+
+  const setPlayerTee = useCallback((pi,key)=>
+    setPlayerTees(t=>{const n=[...t];n[pi]=key;return n;}),[]);
+
+  // Update a single hole field in the active course
+  const updateCourseHole = useCallback((hi, updates)=>{
+    setCourses(cs=>cs.map(c=>c.id===activeCourseId
+      ?{...c, holes:c.holes.map((h,i)=>i===hi?{...h,...updates}:h)}
+      :c
+    ));
+  },[activeCourseId]);
+
+  // Update a tee field in the active course
+  const updateCourseTee = useCallback((key,field,value)=>{
+    setCourses(cs=>cs.map(c=>c.id===activeCourseId
+      ?{...c, tees:{...c.tees,[key]:{...c.tees[key],[field]:value}}}
+      :c
+    ));
+  },[activeCourseId]);
+
+  const switchCourse = useCallback(id=>{
+    setActiveCourseId(id);
+    setPlayerTees(DEFAULT_PLAYER_TEES);
+    showToast(`Platz gewechselt ⛳`);
+  },[showToast]);
+
+  const addCourse = useCallback((name,shortName,unit)=>{
+    const nc = newBlankCourse(name,shortName,unit);
+    setCourses(cs=>[...cs,nc]);
+    setActiveCourseId(nc.id);
+    setPlayerTees(DEFAULT_PLAYER_TEES);
+    showToast(`„${name}" angelegt ✓`);
+  },[showToast]);
+
+  // ── Scoring ───────────────────────────────────────────────────────────────
+  const grossScore = useCallback((pi,from,to)=>
+    scores[pi].slice(from,to).reduce((a,v)=>(v===""||v==="NR")?a:a+(parseInt(v)||0),0),[scores]);
+
+  const netScoreOnHole = useCallback((pi,hi)=>{
+    const v=scores[pi][hi];
+    if (v===""||v==="NR") return null;
+    const g=parseInt(v);
+    return isNaN(g)?null:g-strokesOnHole(playingHcps[pi],holeHcpForTee(holes[hi],playerTees[pi]));
+  },[scores,playingHcps,holes,playerTees]);
+
+  const totalNet = useCallback((pi,from,to)=>
+    scores[pi].slice(from,to).reduce((a,_,i)=>a+(netScoreOnHole(pi,from+i)??0),0),[scores,netScoreOnHole]);
+
+  const totalStableford = useCallback((pi,from,to)=>
+    scores[pi].slice(from,to).reduce((a,v,i)=>{
+      const hi=from+i;
+      if (v==="NR") return a;
+      const net=netScoreOnHole(pi,hi);
+      return net===null?a:a+stablefordPts(net-holes[hi].par);
+    },0),[scores,netScoreOnHole,holes]);
+
+  const holesWon = useCallback((pi,from,to)=>{
+    let won=0,halved=0;
+    for (let hi=from;hi<to;hi++){
+      const nets=[0,1,2,3].map(p=>netScoreOnHole(p,hi)).filter(v=>v!==null);
+      const myNet=netScoreOnHole(pi,hi);
+      if (myNet===null||nets.length<2) continue;
+      const best=Math.min(...nets),bc=nets.filter(v=>v===best).length;
+      if (myNet===best&&bc===1) won++;
+      else if (myNet===best&&bc>1) halved++;
+    }
+    return {won,halved};
+  },[netScoreOnHole]);
+
+  const hasAnyScore = useCallback(pi=>scores[pi].some(v=>v!==""),[scores]);
+
+  // ── Round management ──────────────────────────────────────────────────────
+  const newRound = useCallback(()=>{
+    // ── Save Player 1 (owner) round to history before clearing ────────────
+    const pi = 0;
+    const played = scores[pi].filter(v=>v!=="").length;
+    if (played >= 7) {  // at least 7 holes
+      const teeKey = playerTees[pi];
+      const tee    = tees[teeKey] || Object.values(tees)[0];
+      const phi    = playingHcps[pi];
+      const brutto = scores[pi].reduce((a,v)=>(v===""||v==="NR")?a:a+(parseInt(v)||0),0);
+      const netto  = brutto > 0 ? holes.reduce((a,h,hi)=>{
+        const v=scores[pi][hi];
+        if(v===""||v==="NR") return a;
+        return a+(parseInt(v)||0)-strokesOnHole(phi,holeHcpForTee(h,teeKey));
+      },0) : 0;
+      const stblfd = played >= 7 ? holes.reduce((a,h,hi)=>{
+        const v=scores[pi][hi];
+        if(v==="NR") return a;
+        const g=parseInt(v);
+        if(isNaN(g)) return a;
+        const net=g-strokesOnHole(phi,holeHcpForTee(h,teeKey));
+        return a+stablefordPts(net-h.par);
+      },0) : 0;
+      // Score diff + new HCI
+      const is18 = played >= 15;
+      const is9  = !is18 && played >= 7;
+      let diff=null, newHci=null;
+      if (is18 && brutto>0) {
+        diff   = calcScoreDiff(brutto, tee.cr, tee.slope);
+        newHci = calcNewHCI(playerHcps[pi], diff);
+      } else if (is9 && brutto>0) {
+        diff   = calcScoreDiff(brutto, Math.round(tee.cr/2*10)/10, tee.slope);
+        newHci = calcNewHCI(playerHcps[pi], diff);
+      }
+      const hciNum  = parseFloat(String(playerHcps[pi]).replace(",","."))||0;
+      const hciDelta = newHci !== null ? Math.round((newHci-hciNum)*10)/10 : null;
+      saveHistory({
+        date:       new Date().toLocaleDateString("de-DE"),
+        course:     activeCourse.name,
+        shortName:  activeCourse.shortName,
+        tee:        tee.label || teeKey,
+        par:        totalPar,
+        hci:        hciNum,
+        phi:        phi,
+        holesPlayed:played,
+        gross:      brutto,
+        netto:      netto,
+        stableford: stblfd,
+        diff:       diff,
+        newHci:     newHci,
+        hciDelta:   hciDelta,
+      });
+    }
+    setScores(DEFAULT_SCORES());
+    localStorage.removeItem(SAVE_KEY); setSavedAt(null); setConfirmNew(false);
+    showToast("Neue Runde gestartet ⛳");
+  },[showToast, scores, playerTees, tees, playingHcps, playerHcps, holes, activeCourse, totalPar]);
+
+  const resetAll = useCallback(()=>{
+    setCourses(DEFAULT_COURSES); setActiveCourseId("gcgl");
+    setPlayerNames(DEFAULT_PLAYERS); setPlayerHcps(DEFAULT_PLAYER_HCP);
+    setPlayerTees(DEFAULT_PLAYER_TEES); setScores(DEFAULT_SCORES());
+    localStorage.removeItem(SAVE_KEY); setSavedAt(null); setConfirmReset(false);
+    showToast("Alles zurückgesetzt 🗑");
+  },[showToast]);
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <div style={{minHeight:"100vh",background:BG,fontFamily:"Georgia, serif",color:TEXT}}>
+
+      {/* ── Modals ── */}
+      {courseModal && (
+        <CourseManagerModal
+          courses={courses} activeCourseId={activeCourseId} totalPar={totalPar}
+          onSwitchCourse={switchCourse} onUpdateTee={updateCourseTee}
+          onAddCourse={addCourse} onClose={()=>setCourseModal(false)}
+        />
+      )}
+      {holeModal && (
+        <HoleModal holeNr={holeModal} hole={holes[holeModal-1]}
+          holeInfo={holeInfo[holeModal-1]} tees={tees}
+          onClose={()=>setHoleModal(null)}
+        />
+      )}
+      {teePicker!==null && (
+        <TeePickerModal playerName={playerNames[teePicker]} currentTee={playerTees[teePicker]} tees={tees}
+          onSelect={key=>setPlayerTee(teePicker,key)} onClose={()=>setTeePicker(null)}
+        />
+      )}
+      {historyModal && (
+        <HistoryModal ownerName={playerNames[0]} onClose={()=>setHistoryModal(false)}/>
+      )}
+      {confirmNew  && <ConfirmModal message="Scores löschen und neue Runde starten? Spielernamen bleiben." confirmLabel="New Round"    onConfirm={newRound}  onCancel={()=>setConfirmNew(false)}/>}
+      {confirmReset && <ConfirmModal message="Alles zurücksetzen inkl. Plätze und Spielernamen?"           confirmLabel="Alles löschen" onConfirm={resetAll} onCancel={()=>setConfirmReset(false)}/>}
+      {scoreDetail !== null && (
+        <ScoreDetailModal
+          playerName={playerNames[scoreDetail]}
+          playerHcp={playerHcps[scoreDetail]}
+          playerTeeKey={playerTees[scoreDetail]}
+          tees={tees}
+          scores={scores[scoreDetail]}
+          holes={holes}
+          holeInfo={holeInfo}
+          playingHcp={playingHcps[scoreDetail]}
+          totalPar={totalPar}
+          unit={activeCourse.unit}
+          onClose={()=>setScoreDetail(null)}
+        />
+      )}
+      {stepper && (
+        <StepperModal hole={stepper.hole} holeInfo={holeInfo[stepper.hole.nr-1]}
+          playerName={playerNames[stepper.pi]} currentVal={scores[stepper.pi][stepper.hi]}
+          onSave={val=>setScore(stepper.pi,stepper.hi,val)} onClose={()=>setStepper(null)}
+        />
+      )}
+      {toast && (
+        <div style={{position:"fixed",bottom:28,left:"50%",transform:"translateX(-50%)",background:G,color:"#fff",padding:"10px 22px",borderRadius:20,fontSize:12,zIndex:3000,boxShadow:"0 4px 20px rgba(0,0,0,0.3)",whiteSpace:"nowrap"}}>
+          {toast}
+        </div>
+      )}
+
+      {/* ── Header ── */}
+      <div style={{background:G,padding:"10px 14px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div onClick={()=>setCourseModal(true)} style={{cursor:"pointer"}}>
+          <div style={{fontSize:9,letterSpacing:"0.25em",color:GOLD,textTransform:"uppercase",marginBottom:1}}>
+            {activeCourse.shortName} · Scorecard
+          </div>
+          <div style={{fontSize:17,color:"#fff",fontWeight:"normal",display:"flex",alignItems:"center",gap:6}}>
+            {activeCourse.name}
+            <span style={{fontSize:13,color:"rgba(255,255,255,0.35)",lineHeight:1}}>ⓘ</span>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:5,alignItems:"flex-end"}}>
+          {/* 4 equal-size buttons */}
+          {[
+            {
+              onClick: ()=>setHistoryModal(true),
+              line1: "📋", line2: "Last", line3: "Rounds",
+              bg: "rgba(255,255,255,0.1)", border: `1px solid ${GOLD}55`,
+              color: "rgba(255,255,255,0.8)",
+            },
+            {
+              onClick: ()=>window.print(),
+              line1: "⬇", line2: "Send", line3: "PDF",
+              bg: "rgba(201,168,76,0.15)", border: `1px solid ${GOLD}`,
+              color: GOLD,
+            },
+            {
+              onClick: ()=>setConfirmNew(true),
+              line1: "", line2: "New", line3: "Round",
+              bg: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)",
+              color: "rgba(255,255,255,0.85)",
+            },
+          ].map((btn,i) => (
+            <button key={i} onClick={btn.onClick}
+              style={{
+                background: btn.bg, border: btn.border, borderRadius: 9,
+                width: 52, height: 46, cursor: "pointer",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                color: btn.color, fontFamily: "Georgia, serif", lineHeight: 1.15,
+                padding: 0,
+              }}>
+              {btn.line1 && <span style={{fontSize:14,lineHeight:1}}>{btn.line1}</span>}
+              <span style={{fontSize:9,fontWeight:"bold",letterSpacing:"0.03em"}}>{btn.line2}</span>
+              <span style={{fontSize:9,letterSpacing:"0.03em"}}>{btn.line3}</span>
+            </button>
+          ))}
+          {/* Trash + version stacked */}
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+            <span style={{fontSize:10,color:"rgba(255,255,255,0.35)",letterSpacing:"0.04em",lineHeight:1}}>{APP_VERSION}</span>
+            <button onClick={()=>setConfirmReset(true)} title="Alles zurücksetzen"
+              style={{
+                background:"rgba(255,0,0,0.18)", border:"1px solid rgba(255,100,100,0.35)",
+                borderRadius:9, width:38, height:38,
+                color:"rgba(255,180,180,0.9)", cursor:"pointer", fontSize:16, lineHeight:1,
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+              🗑
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Save indicator ── */}
+      <div style={{background:GL,padding:"2px 14px",display:"flex",justifyContent:"flex-end"}}>
+        <span style={{fontSize:8,color:"rgba(255,255,255,0.4)",letterSpacing:"0.05em"}}>
+          {fmtSaved?`✓ Auto-saved ${fmtSaved}`:"Not saved yet"}
+        </span>
+      </div>
+
+      {/* ── Player header ── */}
+      <div style={{background:GL,display:"flex",padding:"5px 8px",gap:4}}>
+        <div style={{width:84,flexShrink:0}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.4)",textAlign:"center",paddingTop:4,letterSpacing:"0.05em"}}>NAME</div>
+          <div style={{fontSize:9,color:GOLD,textAlign:"center",paddingTop:7,letterSpacing:"0.05em"}}>HCI</div>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",textAlign:"center",paddingTop:6,letterSpacing:"0.05em"}}>PHI</div>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",textAlign:"center",paddingTop:6,letterSpacing:"0.05em"}}>ABSCHL.</div>
+        </div>
+        {playerNames.map((name,i)=>{
+          const tee=tees[playerTees[i]]||Object.values(tees)[0];
+          return (
+            <div key={i} style={{flex:1,minWidth:0}}>
+              {editingName===i?(
+                <input ref={nameRef} value={nameVal}
+                  onChange={e=>setNameVal(e.target.value)}
+                  onFocus={e=>e.target.select()}
+                  onBlur={()=>{const ns=[...playerNames];ns[i]=nameVal.trim()||`Player ${i+1}`;setPlayerNames(ns);setEditingName(null);}}
+                  onKeyDown={e=>e.key==="Enter"&&nameRef.current?.blur()}
+                  style={{background:"transparent",border:"none",borderBottom:`2px solid ${GOLD}`,color:"#fff",fontSize:16,outline:"none",width:"100%",textAlign:"center",fontFamily:"Georgia, serif",padding:"1px 0"}}/>
+              ):(
+                <div onClick={()=>{setEditingName(i);setNameVal(name);}}
+                  style={{color:"#fff",fontSize:14,fontWeight:"bold",textAlign:"center",cursor:"text",padding:"2px",borderBottom:"1px solid rgba(255,255,255,0.15)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                  {name}
+                </div>
+              )}
+              <input type="text" inputMode="decimal" pattern="[0-9]*[.,]?[0-9]?"
+                value={playerHcps[i]}
+                onChange={e=>setPlayerHcp(i,e.target.value.replace(/[^0-9.,]/g,"").replace(/([.,].*)[.,]/g,"$1"))}
+                onFocus={e=>e.target.select()}
+                onBlur={()=>commitPlayerHcp(i)}
+                style={{marginTop:3,background:"rgba(0,0,0,0.2)",border:"none",borderBottom:`1px solid ${GOLD}`,color:GOLD,fontSize:15,outline:"none",width:"100%",textAlign:"center",fontFamily:"monospace",padding:"1px 0",fontWeight:"bold"}}/>
+              <div style={{marginTop:4,textAlign:"center",fontSize:13,color:"rgba(255,255,255,0.65)",fontFamily:"monospace",fontWeight:"bold"}}>
+                {playingHcps[i]}
+              </div>
+              <div onClick={()=>setTeePicker(i)}
+                style={{marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:4,cursor:"pointer",padding:"2px 0"}}>
+                <TeeSwatch teeKey={playerTees[i]} size={11} tees={tees}/>
+                <span style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>{tee.short}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Tabs ── */}
+      <div style={{display:"flex",background:G,borderBottom:`2px solid ${G}`}}>
+        {[["front","Front 9"],["back","Back 9"],["total","All 18"]].map(([key,label])=>(
+          <button key={key} onClick={()=>setHalf(key)}
+            style={{flex:1,padding:"8px 4px",background:half===key?"#fff":"transparent",color:half===key?G:"rgba(255,255,255,0.55)",border:"none",cursor:"pointer",fontSize:13,letterSpacing:"0.04em",fontFamily:"Georgia, serif",fontWeight:half===key?"bold":"normal",borderRadius:half===key?"4px 4px 0 0":0}}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Scorecard table ── */}
+      <div style={{overflowX:"auto"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",background:CARD,tableLayout:"fixed"}}>
+          <colgroup>
+            <col style={{width:28}}/><col style={{width:28}}/><col style={{width:28}}/>
+            <col/><col/><col/><col/>
+          </colgroup>
+          <thead>
+            <tr style={{background:G}}>
+              <th style={cs({color:"#fff",fontSize:8,letterSpacing:"0.1em",fontWeight:"normal"})}>HO</th>
+              <th style={cs({color:GOLD,fontSize:8,letterSpacing:"0.1em",fontWeight:"normal"})}>HCP</th>
+              <th style={cs({color:"#fff",fontSize:8,letterSpacing:"0.1em",fontWeight:"normal"})}>PAR</th>
+              {playerNames.map((name,i)=>(
+                <th key={i} style={cs({color:"#fff",fontSize:12,fontWeight:"bold"})}>
+                  {name.length>6?name.slice(0,5)+"…":name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {displayHoles.map((hole,di)=>{
+              const hi=di+offset, isOdd=di%2===0;
+              return (
+                <tr key={hole.nr} style={{background:isOdd?CARD:"#f9f5ec"}}>
+                  <td style={CS_HO} onClick={()=>setHoleModal(hole.nr)}>
+                    <span style={{textDecoration:"underline",textDecorationStyle:"dotted",textDecorationColor:GOLD}}>{hole.nr}</span>
+                  </td>
+                  <td style={CS_HCP} onClick={()=>setEditingHcp(editingHcp===hi?null:hi)}>
+                    {editingHcp===hi?(
+                      <select autoFocus value={hole.hcp}
+                        onChange={e=>{updateCourseHole(hi,{hcp:parseInt(e.target.value)});setEditingHcp(null);}}
+                        onBlur={()=>setEditingHcp(null)}
+                        style={{border:"none",background:GOLD,color:G,fontWeight:"bold",fontSize:16,borderRadius:3,width:34,cursor:"pointer",fontFamily:"Georgia, serif"}}>
+                        {HCP_OPTS.map(v=><option key={v} value={v}>{v}</option>)}
+                      </select>
+                    ):(
+                      <span style={{fontSize:13,color:MUTED}}>{hole.hcp}</span>
+                    )}
+                  </td>
+                  <td style={CS_PAR} onClick={()=>setEditingPar(editingPar===hi?null:hi)}>
+                    {editingPar===hi?(
+                      <select autoFocus value={hole.par}
+                        onChange={e=>{updateCourseHole(hi,{par:parseInt(e.target.value)});setEditingPar(null);}}
+                        onBlur={()=>setEditingPar(null)}
+                        style={{border:"none",background:GOLD,color:G,fontWeight:"bold",fontSize:16,borderRadius:3,width:34,cursor:"pointer",fontFamily:"Georgia, serif"}}>
+                        <option value={3}>3</option><option value={4}>4</option><option value={5}>5</option>
+                      </select>
+                    ):(
+                      <span style={{display:"inline-block",background:hole.par===3?"#e8f4fd":hole.par===5?"#fef3e2":"transparent",color:hole.par===3?"#1d4ed8":hole.par===5?"#92400e":TEXT,borderRadius:3,padding:"0 3px",fontSize:13,fontWeight:"bold"}}>
+                        {hole.par}
+                      </span>
+                    )}
+                  </td>
+                  {[0,1,2,3].map(pi=>{
+                    const val=scores[pi][hi], extra=strokesOnHole(playingHcps[pi],holeHcpForTee(hole,playerTees[pi]));
+                    return (
+                      <td key={pi} style={cs({padding:0,cursor:"pointer"})} onClick={()=>setStepper({hole,pi,hi})}>
+                        <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"center",height:38}}>
+                          {extra>0&&(
+                            <div style={{position:"absolute",top:3,right:3,zIndex:2,pointerEvents:"none"}}>
+                              {Array.from({length:extra},(_,k)=>(
+                                <span key={k} style={{display:"inline-block",width:5,height:5,borderRadius:"50%",background:GOLD,marginLeft:1}}/>
+                              ))}
+                            </div>
+                          )}
+                          {val!==""?<ScoreBadge val={val} par={hole.par}/>:<span style={{color:LINE,fontSize:20}}>+</span>}
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+
+            {/* OUT/IN subtotal */}
+            {half!=="total"&&(()=>{
+              const from=half==="front"?0:9, to=half==="front"?9:18;
+              const par=half==="front"?frontPar:backPar;
+              return (
+                <tr style={{background:"#e8e2d4",borderTop:`2px solid ${G}`}}>
+                  <td colSpan={2} style={cs({fontWeight:"bold",fontSize:12,color:G})}>{half==="front"?"OUT":"IN"}</td>
+                  <td style={cs({fontWeight:"bold",color:G,fontSize:14})}>{par}</td>
+                  {[0,1,2,3].map(pi=>{
+                    const s=grossScore(pi,from,to), d=s>0?s-par:null;
+                    return (
+                      <td key={pi} style={cs({fontWeight:"bold"})}>
+                        {s>0?(<div><div style={{fontSize:14}}>{s}</div><div style={{fontSize:11,color:d===0?MUTED:d<0?RED:"#92400e"}}>{diffLabel(d)}</div></div>):"—"}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })()}
+
+            {/* All-18 OUT+IN rows */}
+            {half==="total"&&[["OUT",0,9,frontPar],["IN",9,18,backPar]].map(([label,from,to,par])=>(
+              <tr key={label} style={{background:"#e8e2d4",borderTop:label==="OUT"?`2px solid ${G}`:"none"}}>
+                <td colSpan={2} style={cs({fontWeight:"bold",fontSize:12,color:G})}>{label}</td>
+                <td style={cs({fontWeight:"bold",color:G,fontSize:14})}>{par}</td>
+                {[0,1,2,3].map(pi=>{
+                  const s=grossScore(pi,from,to);
+                  return <td key={pi} style={cs({fontWeight:"bold",fontSize:14})}>{s||"—"}</td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Results footer ── */}
+      <div style={{background:G,padding:"12px 10px"}}>
+        <div style={{fontSize:11,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:8}}>Total — Par {totalPar}</div>
+        <div style={{display:"flex",gap:5}}>
+          {playerNames.map((name,pi)=>{
+            const brutto=grossScore(pi,0,18),netto=totalNet(pi,0,18),stbl=totalStableford(pi,0,18);
+            const {won,halved}=holesWon(pi,0,18);
+            const bD=brutto>0?brutto-totalPar:null, nD=brutto>0?netto-totalPar:null;
+            const has=hasAnyScore(pi), tee=tees[playerTees[pi]]||Object.values(tees)[0];
+            // New HCI estimate
+            const played18 = scores[pi].filter(v=>v!=="").length;
+            const played9f  = scores[pi].slice(0,9).filter(v=>v!=="").length;
+            const played9b  = scores[pi].slice(9).filter(v=>v!=="").length;
+            const bruttoF   = grossScore(pi,0,9), bruttoB = grossScore(pi,9,18);
+            let diff=null, newHci=null;
+            if (played18>=15 && brutto>0) {
+              diff=calcScoreDiff(brutto,tee.cr,tee.slope);
+              newHci=calcNewHCI(playerHcps[pi],diff);
+            } else if (played9f>=7 && bruttoF>0) {
+              diff=calcScoreDiff(bruttoF,Math.round(tee.cr/2*10)/10,tee.slope);
+              newHci=calcNewHCI(playerHcps[pi],diff);
+            } else if (played9b>=7 && bruttoB>0) {
+              diff=calcScoreDiff(bruttoB,Math.round(tee.cr/2*10)/10,tee.slope);
+              newHci=calcNewHCI(playerHcps[pi],diff);
+            }
+            const hciNum=parseFloat(String(playerHcps[pi]).replace(",","."))||0;
+            const hciDelta=newHci!==null?Math.round((newHci-hciNum)*10)/10:null;
+            return (
+              <div key={pi} onClick={()=>setScoreDetail(pi)}
+                style={{flex:1,background:"rgba(255,255,255,0.08)",borderRadius:8,overflow:"hidden",border:"1px solid rgba(255,255,255,0.1)",cursor:"pointer",transition:"background 0.15s"}}
+                onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.14)"}
+                onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}>
+                <div style={{background:"rgba(0,0,0,0.15)",padding:"4px 4px 3px",textAlign:"center",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
+                  <div style={{fontSize:14,fontWeight:"bold",color:"rgba(255,255,255,0.85)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                    {name.length>8?name.slice(0,7)+"…":name}
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:4,marginTop:2}}>
+                    <TeeSwatch teeKey={playerTees[pi]} size={8} tees={tees}/>
+                    <span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{tee.short}</span>
+                  </div>
+                  <div style={{fontSize:10,color:GOLD,marginTop:1}}>
+                    HCI {parseFloat(playerHcps[pi])||0} · PHI <strong style={{color:"#fff"}}>{playingHcps[pi]}</strong>
+                  </div>
+                </div>
+                {[
+                  {lbl:"Brutto", val:has?(brutto||"—"):"—", color:"#fff", size:20, sub:bD!==null?<div style={{fontSize:11,color:bD===0?"rgba(255,255,255,0.35)":bD<0?GOLD:"#fca5a5"}}>{diffLabel(bD)}</div>:null},
+                  {lbl:"Netto",  val:has?(netto||"—"):"—",  color:GOLD,   size:18, sub:nD!==null?<div style={{fontSize:11,color:nD===0?"rgba(255,255,255,0.35)":nD<0?"#86efac":"#fca5a5"}}>{diffLabel(nD)}</div>:null},
+                  {lbl:"Stblfd",val:has?stbl:"—",           color:"#86efac",size:18,sub:<div style={{fontSize:11,color:"rgba(255,255,255,0.3)"}}>pts</div>},
+                ].map(({lbl,val,color,size,sub})=>(
+                  <div key={lbl} style={{padding:"3px 4px",textAlign:"center",borderTop:"1px solid rgba(255,255,255,0.07)"}}>
+                    <div style={{fontSize:11,fontWeight:"bold",color:"rgba(255,255,255,0.45)",letterSpacing:"0.08em",textTransform:"uppercase"}}>{lbl}</div>
+                    <div style={{fontSize:size,color,fontWeight:"bold",fontFamily:"monospace",lineHeight:1.1}}>{val}</div>
+                    {sub}
+                  </div>
+                ))}
+                <div style={{padding:"3px 4px",textAlign:"center",borderTop:"1px solid rgba(255,255,255,0.07)"}}>
+                  <div style={{fontSize:11,fontWeight:"bold",color:"rgba(255,255,255,0.45)",letterSpacing:"0.08em",textTransform:"uppercase"}}>Match</div>
+                  {has?(
+                    <div style={{display:"flex",justifyContent:"center",gap:4,marginTop:1}}>
+                      <div>
+                        <div style={{fontSize:17,color:"#fff",fontWeight:"bold",fontFamily:"monospace",lineHeight:1}}>{won}</div>
+                        <div style={{fontSize:10,color:"rgba(255,255,255,0.35)"}}>W</div>
+                      </div>
+                      <div style={{color:"rgba(255,255,255,0.2)",fontSize:12,lineHeight:1.5}}>·</div>
+                      <div>
+                        <div style={{fontSize:17,color:"rgba(255,255,255,0.5)",fontWeight:"bold",fontFamily:"monospace",lineHeight:1}}>{halved}</div>
+                        <div style={{fontSize:10,color:"rgba(255,255,255,0.3)"}}>½</div>
+                      </div>
+                    </div>
+                  ):<div style={{fontSize:13,color:"rgba(255,255,255,0.3)"}}>—</div>}
+                </div>
+                {/* New HCI */}
+                <div style={{padding:"4px 4px 5px",textAlign:"center",borderTop:"1px solid rgba(255,255,255,0.1)",background:"rgba(0,0,0,0.15)"}}>
+                  <div style={{fontSize:10,fontWeight:"bold",color:"rgba(255,255,255,0.4)",letterSpacing:"0.06em",textTransform:"uppercase"}}>Neue HCI</div>
+                  {newHci !== null ? (
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:4,marginTop:2}}>
+                      <span style={{fontSize:16,fontWeight:"bold",color:hciDelta<=0?"#86efac":"#fca5a5",fontFamily:"monospace"}}>{newHci}</span>
+                      <span style={{fontSize:10,color:hciDelta<=0?"#86efac":"#fca5a5"}}>{hciDelta<=0?`▼${Math.abs(hciDelta)}`:`▲+${hciDelta}`}</span>
+                    </div>
+                  ) : (
+                    <div style={{fontSize:12,color:"rgba(255,255,255,0.2)",marginTop:2}}>—</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{marginTop:8,display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap"}}>
+          {[["●",GOLD,"= Vorgabeschlag"],["W","#fff","= Loch gewonnen"],["—",MUTED,"= aufgenommen"],["↓","#86efac","= Ergebnis tippen"]].map(([sym,col,lbl])=>(
+            <div key={lbl} style={{fontSize:10,color:"rgba(255,255,255,0.4)",display:"flex",gap:3,alignItems:"center"}}>
+              <span style={{color:col,fontSize:sym==="●"?7:10}}>{sym}</span>{lbl}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Score legend ── */}
+      <div style={{background:"#ede8dc",padding:"8px 10px",display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",borderTop:`1px solid ${LINE}`}}>
+        {[
+          {label:"Eagle", s:{color:RED, border:`2px solid ${RED}`,borderRadius:"50%",outline:`2px solid ${RED}`,outlineOffset:1}},
+          {label:"Birdie",s:{color:RED, border:`2px solid ${RED}`,borderRadius:"50%"}},
+          {label:"Par",   s:{color:TEXT}},
+          {label:"Bogey", s:{color:TEXT,border:`2px solid ${TEXT}`}},
+          {label:"Dbl.",  s:{color:TEXT,border:`2px solid ${TEXT}`,outline:`2px solid ${TEXT}`,outlineOffset:1}},
+        ].map(({label,s})=>(
+          <div key={label} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,color:"#6b5e45"}}>
+            <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:18,height:18,fontSize:11,fontWeight:"bold",fontFamily:"monospace",...s}}>4</span>
+            {label}
+          </div>
+        ))}
+      </div>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<GolfScorecard/>);
+</script>
+</body>
+</html>
