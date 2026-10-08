@@ -514,6 +514,43 @@ const DEFAULT_COURSES = [
       dr: {label:"Damen Vorne",  short:"D·V", gender:"D", bg:"#f97316", ring:"#c2410c", cr:71.5, slope:128},
     },
   },
+  // ── Golfclub Rhein-Sieg, Hennef (Par 72 · Out 37 / In 35) ─────────────────
+  // Lochdaten (Par, HCP, Meter): Golfify-Scorekarte = gcrs.de/18-loch-anlage (identisch)
+  //   Gelb 5868 m · Rot 5172 m · Grün: keine Lochlängen veröffentlicht
+  // CR/Slope: offizielle Vorgabentabelle gcrs.de/pdf/vorgabentabelle.pdf
+  //   (Golfify nennt abweichend H 71.1/130 · D 72.9/126 — veraltet)
+  {
+    id: "gcrs",
+    name: "Golfclub Rhein-Sieg",
+    shortName: "GCRS",
+    unit: "m",
+    holes: [
+      {nr:1, hcp:5, par:4},{nr:2, hcp:11,par:5},{nr:3, hcp:15,par:3},{nr:4, hcp:17,par:5},
+      {nr:5, hcp:3, par:5},{nr:6, hcp:13,par:3},{nr:7, hcp:1, par:4},{nr:8, hcp:7, par:4},{nr:9, hcp:9, par:4},
+      {nr:10,hcp:16,par:4},{nr:11,hcp:2, par:4},{nr:12,hcp:10,par:3},{nr:13,hcp:12,par:4},
+      {nr:14,hcp:8, par:5},{nr:15,hcp:6, par:4},{nr:16,hcp:14,par:4},{nr:17,hcp:18,par:3},{nr:18,hcp:4, par:4},
+    ],
+    holeInfo: [
+      // hw=H·Gelb, hy=H·Rot (=Rot-Tee), hb=H·Grün (n/a), db=D·Rot, dr=D·Grün (n/a)
+      hi("Loch 1",  282,249,null,249,null), hi("Loch 2",  441,388,null,388,null),
+      hi("Loch 3",  175,154,null,154,null), hi("Loch 4",  449,408,null,408,null),
+      hi("Loch 5",  496,420,null,420,null), hi("Loch 6",  163,149,null,149,null),
+      hi("Loch 7",  385,338,null,338,null), hi("Loch 8",  341,297,null,297,null),
+      hi("Loch 9",  373,321,null,321,null),
+      hi("Loch 10", 304,258,null,258,null), hi("Loch 11", 389,327,null,327,null),
+      hi("Loch 12", 183,170,null,170,null), hi("Loch 13", 274,248,null,248,null),
+      hi("Loch 14", 460,413,null,413,null), hi("Loch 15", 345,313,null,313,null),
+      hi("Loch 16", 312,275,null,275,null), hi("Loch 17", 146,133,null,133,null),
+      hi("Loch 18", 350,311,null,311,null),
+    ],
+    tees: {
+      hw: {label:"Herren Gelb",  short:"H·G",  gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.5, slope:138},
+      hy: {label:"Herren Rot",   short:"H·R",  gender:"H", bg:"#c0392b", ring:"#8b0000", cr:67.7, slope:131},
+      hb: {label:"Herren Grün",  short:"H·Gr", gender:"H", bg:"#22c55e", ring:"#15803d", cr:60.9, slope:103},
+      db: {label:"Damen Rot",    short:"D·R",  gender:"D", bg:"#c0392b", ring:"#8b0000", cr:73.7, slope:132},
+      dr: {label:"Damen Grün",   short:"D·Gr", gender:"D", bg:"#22c55e", ring:"#15803d", cr:63.6, slope:102},
+    },
+  },
   // ── Gut Lärchenhof ── alle 5 Abschläge in Metern (Scorekarte 2024)
   {
     id: "gcgl", name: "Gut Lärchenhof", shortName: "GCGL", unit: "m",
@@ -759,7 +796,7 @@ const DEFAULT_PLAYER_TEES = ["hw","hy","hy","hy"];
 const DEFAULT_SCORES      = () => Array.from({length:4}, () => Array(18).fill(""));
 const SAVE_KEY            = "gcgl_round_v24";
 const HISTORY_KEY         = "gcgl_history_v1";
-const APP_VERSION         = "v24";
+const APP_VERSION         = "v25";
 const MAX_HISTORY         = 20;
 const HCP_OPTS            = Array.from({length:18}, (_,i) => i+1);
 
