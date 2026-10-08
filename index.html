@@ -796,7 +796,7 @@ const DEFAULT_PLAYER_TEES = ["hw","hy","hy","hy"];
 const DEFAULT_SCORES      = () => Array.from({length:4}, () => Array(18).fill(""));
 const SAVE_KEY            = "gcgl_round_v24";
 const HISTORY_KEY         = "gcgl_history_v1";
-const APP_VERSION         = "v25";
+const APP_VERSION         = "v26";
 const MAX_HISTORY         = 20;
 const HCP_OPTS            = Array.from({length:18}, (_,i) => i+1);
 
@@ -988,7 +988,7 @@ const CourseManagerModal = memo(function CourseManagerModal({
           {/* ── PLÄTZE tab ── */}
           {tab==="list" && (
             <div style={{padding:"12px 14px 8px"}}>
-              {courses.map(c => {
+              {[...courses].sort((a,b) => (a.name||"").localeCompare(b.name||"", "de", {sensitivity:"base", numeric:true})).map(c => {
                 const isActive = c.id === activeCourseId;
                 const cPar = c.holes.reduce((a,h)=>a+h.par,0);
                 return (
