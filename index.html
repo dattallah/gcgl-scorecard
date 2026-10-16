@@ -289,24 +289,35 @@ const DEFAULT_COURSES = [
     },
   },
   // ── Fancourt: Outeniqua (Par 72) ─────────────────────────────────────────
-  // Ratings (SA Top 100): Protea 73.9/143, Springbok 72.0/141, Galjoen 69.9/138,
-  //   Yellowwood 68.4/131, Blue Crane 66.6/126 (Herren-Ratings)
-  // Tee-Summen: 6301/5986/5603/5099/4953 m · Lochlängen pro Tee nicht verfügbar → editierbar
+  // Scorekarte (Golf-App, Okt. 2026): Protea 73.9/131, Springbok 71.4/132,
+  //   Galjoen 69.6/127 (Herren), Yellowwood 73.8/130, Blue Crane 71.7/126 (Damen)
+  // Längen alle 18 Loch (Summen 6312/5986/5603/5330/4978 m)
   {
-    id: "fancourt_outeniqua", name: "Fancourt: Outeniqua", shortName: "FC·O", unit: "m",
+    id: "fancourt_outeniqua", rev: 2, name: "Fancourt: Outeniqua", shortName: "FC·O", unit: "m",
     holes: [
-      {nr:1, hcp:13,par:4},{nr:2, hcp:17,par:5},{nr:3, hcp:3, par:4},{nr:4, hcp:9, par:3},
-      {nr:5, hcp:11,par:4},{nr:6, hcp:15,par:4},{nr:7, hcp:7, par:3},{nr:8, hcp:5, par:5},{nr:9, hcp:1, par:4},
-      {nr:10,hcp:12,par:4},{nr:11,hcp:4, par:5},{nr:12,hcp:16,par:3},{nr:13,hcp:8, par:4},
-      {nr:14,hcp:2, par:4},{nr:15,hcp:14,par:3},{nr:16,hcp:6, par:4},{nr:17,hcp:18,par:5},{nr:18,hcp:10,par:4},
+      {nr:1, hcp:17,par:4},{nr:2, hcp:15,par:5},{nr:3, hcp:3,par:4},{nr:4, hcp:7,par:3},
+      {nr:5, hcp:5,par:4},{nr:6, hcp:13,par:4},{nr:7, hcp:9,par:3},{nr:8, hcp:11,par:5},{nr:9, hcp:1,par:4},
+      {nr:10, hcp:12,par:4},{nr:11, hcp:8,par:5},{nr:12, hcp:14,par:3},{nr:13, hcp:6,par:4},
+      {nr:14, hcp:2,par:4},{nr:15, hcp:16,par:3},{nr:16, hcp:4,par:4},{nr:17, hcp:18,par:5},{nr:18, hcp:10,par:4},
     ],
-    holeInfo: Array.from({length:18}, (_,i) => hi(`Loch ${i+1}`, null,null,null,null,null)),
+    holeInfo: [
+      // hw=Protea, hy=Springbok, hb=Galjoen, db=Yellowwood, dr=Blue Crane
+      hi("Loch 1",316,302,278,278,264), hi("Loch 2",497,480,474,474,434),
+      hi("Loch 3",398,377,353,335,334), hi("Loch 4",184,180,160,134,122),
+      hi("Loch 5",301,285,267,267,214), hi("Loch 6",358,331,308,308,291),
+      hi("Loch 7",162,160,134,122,95), hi("Loch 8",529,497,468,424,423),
+      hi("Loch 9",396,385,361,310,309), hi("Loch 10",324,306,281,281,239),
+      hi("Loch 11",507,490,463,432,431), hi("Loch 12",173,160,158,158,141),
+      hi("Loch 13",372,369,358,352,324), hi("Loch 14",421,384,362,329,328),
+      hi("Loch 15",149,143,129,129,111), hi("Loch 16",390,357,334,288,288),
+      hi("Loch 17",491,462,421,421,364), hi("Loch 18",344,318,294,288,266),
+    ],
     tees: {
-      hw: {label:"Protea",     short:"Pro", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:73.9, slope:143},
-      hy: {label:"Springbok",  short:"Spr", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.0, slope:141},
-      hb: {label:"Galjoen",    short:"Gal", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:69.9, slope:138},
-      db: {label:"Yellowwood", short:"YW",  gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:68.4, slope:131},
-      dr: {label:"Blue Crane", short:"BC",  gender:"H", bg:"#c0392b", ring:"#8b0000", cr:66.6, slope:126},
+      hw: {label:"Protea",          short:"Pro", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:73.9, slope:131},
+      hy: {label:"Springbok",       short:"Spr", gender:"H", bg:"#f0c800", ring:"#b89600", cr:71.4, slope:132},
+      hb: {label:"Galjoen",         short:"Gal", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:69.6, slope:127},
+      db: {label:"Yellowwood (D)",  short:"YW",  gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:73.8, slope:130},
+      dr: {label:"Blue Crane (D)",  short:"BC",  gender:"D", bg:"#c0392b", ring:"#8b0000", cr:71.7, slope:126},
     },
   },
   // ── GC Lengenfeld: Donauland (Par 72) ────────────────────────────────────
