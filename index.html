@@ -256,12 +256,12 @@ const DEFAULT_COURSES = [
     },
   },
   // ── Fancourt: Montagu (Par 72) ───────────────────────────────────────────
-  // Ratings (homeofgolf.africa): Protea 76.1/145, Springbok 74.0/140,
-  //   Galjoen 70.3/134, Yellowwood 67.9/127, Blue Crane 66.3/120 (Herren-Ratings;
-  //   Damen-Ratings nicht gefunden → bei Bedarf im Abschläge-Tab anpassen)
-  // Längen: GolfPass-Yards ×0.9144 + Hole19/SharkClub (Summen 6714/6324/5669/5302/5002 m)
+  // Ratings (Scorekarte Golf-App, Okt. 2026): Protea 75.1/134, Galjoen 69.4/127 (Herren),
+  //   Yellowwood 73.3/133, Blue Crane 71.6/129 (Damen); Springbok-CR in App abgeschnitten
+  //   ("7…"), Slope 131 → CR 73.0 lt. SharkClub (gleicher Slope)
+  // Längen: Front 9 + Loch 10 mit Scorekarte abgeglichen (Summen 6714/6324/5669/5302/5002 m)
   {
-    id: "fancourt_montagu", name: "Fancourt: Montagu", shortName: "FC·M", unit: "m",
+    id: "fancourt_montagu", rev: 2, name: "Fancourt: Montagu", shortName: "FC·M", unit: "m",
     holes: [
       {nr:1, hcp:11,par:4},{nr:2, hcp:15,par:3},{nr:3, hcp:3, par:4},{nr:4, hcp:17,par:5},
       {nr:5, hcp:9, par:4},{nr:6, hcp:1, par:4},{nr:7, hcp:5, par:4},{nr:8, hcp:7, par:3},{nr:9, hcp:13,par:5},
@@ -282,11 +282,11 @@ const DEFAULT_COURSES = [
       hi("Loch 18",484,451,403,368,367),
     ],
     tees: {
-      hw: {label:"Protea",     short:"Pro", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:76.1, slope:145},
-      hy: {label:"Springbok",  short:"Spr", gender:"H", bg:"#f0c800", ring:"#b89600", cr:74.0, slope:140},
-      hb: {label:"Galjoen",    short:"Gal", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:70.3, slope:134},
-      db: {label:"Yellowwood", short:"YW",  gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:67.9, slope:127},
-      dr: {label:"Blue Crane", short:"BC",  gender:"H", bg:"#c0392b", ring:"#8b0000", cr:66.3, slope:120},
+      hw: {label:"Protea",          short:"Pro", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:75.1, slope:134},
+      hy: {label:"Springbok",       short:"Spr", gender:"H", bg:"#f0c800", ring:"#b89600", cr:73.0, slope:131},
+      hb: {label:"Galjoen",         short:"Gal", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:69.4, slope:127},
+      db: {label:"Yellowwood (D)",  short:"YW",  gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:73.3, slope:133},
+      dr: {label:"Blue Crane (D)",  short:"BC",  gender:"D", bg:"#c0392b", ring:"#8b0000", cr:71.6, slope:129},
     },
   },
   // ── Fancourt: Outeniqua (Par 72) ─────────────────────────────────────────
