@@ -228,7 +228,7 @@ const DEFAULT_COURSES = [
   // PLATZHALTER: Par von L2/4/5/6/7/8, HCP-Reihenfolge, CR/Slope (68.0/113 ⇒
   // Spielvorgabe = HCP-Index) → bitte mit Scorekarte vor Ort im Kurs-Editor prüfen
   {
-    id: "fancourt_lx", name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
+    id: "fancourt_lx", rev: 2, name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
     holes: [
       {nr:1, hcp:7, par:4},{nr:2, hcp:3, par:4},{nr:3, hcp:17,par:3},{nr:4, hcp:5, par:4},
       {nr:5, hcp:9, par:4},{nr:6, hcp:15,par:3},{nr:7, hcp:11,par:4},{nr:8, hcp:13,par:3},{nr:9, hcp:1, par:5},
@@ -248,11 +248,11 @@ const DEFAULT_COURSES = [
       hi("Up the Hill*",null,null,null,null,null),
     ],
     tees: {
-      hw: {label:"Abschlag lang (CR/Slope unbekannt)", short:"L",   gender:"H", bg:"#1c1c1e", ring:"#555555", cr:68.0, slope:113},
-      hy: {label:"Abschlag mittel (CR/Slope unbekannt)",short:"M",  gender:"H", bg:"#f0c800", ring:"#b89600", cr:68.0, slope:113},
-      hb: {label:"Abschlag kurz (CR/Slope unbekannt)", short:"K",   gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:68.0, slope:113},
-      db: {label:"Damen (CR/Slope unbekannt)",         short:"D",   gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:68.0, slope:113},
-      dr: {label:"Damen kurz (CR/Slope unbekannt)",    short:"D·K", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:68.0, slope:113},
+      hw: {label:"Lang", short:"L",   gender:"H", bg:"#1c1c1e", ring:"#555555", cr:68.0, slope:113},
+      hy: {label:"Mittel", short:"M",  gender:"H", bg:"#f0c800", ring:"#b89600", cr:68.0, slope:113},
+      hb: {label:"Kurz", short:"K",   gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:68.0, slope:113},
+      db: {label:"Damen", short:"D",   gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:68.0, slope:113},
+      dr: {label:"Damen kurz", short:"D·K", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:68.0, slope:113},
     },
   },
   // ── Fancourt: Montagu (Par 72) ───────────────────────────────────────────
