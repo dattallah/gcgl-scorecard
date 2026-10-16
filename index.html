@@ -191,9 +191,9 @@ const DEFAULT_COURSES = [
   // ── Fancourt (George, Südafrika): The Links (Par 73) ─────────────────────
   // Scorekarte (Golf-App, Okt. 2026): Grey Champion 78.8/155, Green Men 76.0/153,
   //   Beige Senior 71.8/143, Red Ladies 74.8/140 · S.I. für alle Abschläge gleich
-  // Längen: Grey alle 18 Loch; Green/Beige/Red nur Loch 1–10 bekannt → editierbar
+  // Längen: alle 18 Loch aus Scorekarte (Summen 6930/6477/5721/5205 m)
   {
-    id: "fancourt_links", rev: 2, name: "Fancourt: The Links", shortName: "FC·L", unit: "m",
+    id: "fancourt_links", rev: 3, name: "Fancourt: The Links", shortName: "FC·L", unit: "m",
     holes: [
       {nr:1, hcp:16,par:4},{nr:2, hcp:6, par:3},{nr:3, hcp:2, par:4},{nr:4, hcp:8, par:4},
       {nr:5, hcp:18,par:5},{nr:6, hcp:14,par:4},{nr:7, hcp:4, par:4},{nr:8, hcp:12,par:3},{nr:9, hcp:10,par:5},
@@ -207,11 +207,11 @@ const DEFAULT_COURSES = [
       hi("Loch 5", 502,483,420,365,365), hi("Loch 6", 312,297,282,264,264),
       hi("Loch 7", 435,402,354,328,328), hi("Loch 8", 185,166,127, 92, 92),
       hi("Loch 9", 557,540,492,460,460),
-      hi("Loch 10",373,357,303,286,286), hi("Loch 11",147,null,null,null,null),
-      hi("Loch 12",440,null,null,null,null), hi("Loch 13",487,null,null,null,null),
-      hi("Loch 14",330,null,null,null,null), hi("Loch 15",436,null,null,null,null),
-      hi("Loch 16",534,null,null,null,null), hi("Loch 17",170,null,null,null,null),
-      hi("Loch 18",563,null,null,null,null),
+      hi("Loch 10",373,357,303,286,286), hi("Loch 11",147,135,119, 96, 96),
+      hi("Loch 12",440,419,381,307,307), hi("Loch 13",487,468,450,429,429),
+      hi("Loch 14",330,309,280,264,264), hi("Loch 15",436,362,323,305,305),
+      hi("Loch 16",534,523,450,408,408), hi("Loch 17",170,149,125,103,103),
+      hi("Loch 18",563,502,443,423,423),
     ],
     tees: {
       hw: {label:"Grey Champion", short:"Gry", gender:"H", bg:"#9ca3af", ring:"#6b7280", cr:78.8, slope:155},
@@ -257,9 +257,8 @@ const DEFAULT_COURSES = [
   },
   // ── Fancourt: Montagu (Par 72) ───────────────────────────────────────────
   // Ratings (Scorekarte Golf-App, Okt. 2026): Protea 75.1/134, Galjoen 69.4/127 (Herren),
-  //   Yellowwood 73.3/133, Blue Crane 71.6/129 (Damen); Springbok-CR in App abgeschnitten
-  //   ("7…"), Slope 131 → CR 73.0 lt. SharkClub (gleicher Slope)
-  // Längen: Front 9 + Loch 10 mit Scorekarte abgeglichen (Summen 6714/6324/5669/5302/5002 m)
+  //   Yellowwood 73.3/133, Blue Crane 71.6/129 (Damen); Springbok 73.0/131
+  // Längen: alle 18 Loch mit Scorekarte abgeglichen (Summen 6714/6324/5669/5302/5002 m)
   {
     id: "fancourt_montagu", rev: 2, name: "Fancourt: Montagu", shortName: "FC·M", unit: "m",
     holes: [
