@@ -189,42 +189,36 @@ const DEFAULT_COURSES = [
     },
   },
   // ── Fancourt (George, Südafrika): The Links (Par 73) ─────────────────────
-  // Ratings (SA Top 100): Black 77.8/149, Yellow 74.1/141, White 70.9/137,
-  //   Blue 70.0/132, Red 67.7/123 (Herren); Damen Blue 76.2/141, Red 73.3/133
-  // Lochlängen nur für Black bekannt (Summe 6930 m) · Damen-HCP lt. GolfPass
+  // Scorekarte (Golf-App, Okt. 2026): Grey Champion 78.8/155, Green Men 76.0/153,
+  //   Beige Senior 71.8/143, Red Ladies 74.8/140 · S.I. für alle Abschläge gleich
+  // Längen: Grey alle 18 Loch; Green/Beige/Red nur Loch 1–10 bekannt → editierbar
   {
-    id: "fancourt_links", name: "Fancourt: The Links", shortName: "FC·L", unit: "m",
+    id: "fancourt_links", rev: 2, name: "Fancourt: The Links", shortName: "FC·L", unit: "m",
     holes: [
-      {nr:1, hcp:16,par:4, hcpByTee:{db:4, dr:4}},  {nr:2, hcp:6, par:3, hcpByTee:{db:16,dr:16}},
-      {nr:3, hcp:2, par:4, hcpByTee:{db:2, dr:2}},  {nr:4, hcp:8, par:4, hcpByTee:{db:10,dr:10}},
-      {nr:5, hcp:18,par:5, hcpByTee:{db:8, dr:8}},  {nr:6, hcp:14,par:4, hcpByTee:{db:14,dr:14}},
-      {nr:7, hcp:4, par:4, hcpByTee:{db:12,dr:12}}, {nr:8, hcp:12,par:3, hcpByTee:{db:18,dr:18}},
-      {nr:9, hcp:10,par:5, hcpByTee:{db:6, dr:6}},
-      {nr:10,hcp:3, par:4, hcpByTee:{db:1, dr:1}},  {nr:11,hcp:17,par:3, hcpByTee:{db:17,dr:17}},
-      {nr:12,hcp:1, par:4, hcpByTee:{db:11,dr:11}}, {nr:13,hcp:13,par:5, hcpByTee:{db:5, dr:5}},
-      {nr:14,hcp:15,par:4, hcpByTee:{db:7, dr:7}},  {nr:15,hcp:5, par:4, hcpByTee:{db:3, dr:3}},
-      {nr:16,hcp:7, par:5, hcpByTee:{db:9, dr:9}},  {nr:17,hcp:9, par:3, hcpByTee:{db:13,dr:13}},
-      {nr:18,hcp:11,par:5, hcpByTee:{db:15,dr:15}},
+      {nr:1, hcp:16,par:4},{nr:2, hcp:6, par:3},{nr:3, hcp:2, par:4},{nr:4, hcp:8, par:4},
+      {nr:5, hcp:18,par:5},{nr:6, hcp:14,par:4},{nr:7, hcp:4, par:4},{nr:8, hcp:12,par:3},{nr:9, hcp:10,par:5},
+      {nr:10,hcp:3, par:4},{nr:11,hcp:17,par:3},{nr:12,hcp:1, par:4},{nr:13,hcp:13,par:5},
+      {nr:14,hcp:15,par:4},{nr:15,hcp:5, par:4},{nr:16,hcp:7, par:5},{nr:17,hcp:9, par:3},{nr:18,hcp:11,par:5},
     ],
     holeInfo: [
-      // hw=Black · übrige Abschläge nicht verfügbar → editierbar
-      hi("Loch 1", 362,null,null,null,null), hi("Loch 2", 216,null,null,null,null),
-      hi("Loch 3", 429,null,null,null,null), hi("Loch 4", 452,null,null,null,null),
-      hi("Loch 5", 502,null,null,null,null), hi("Loch 6", 312,null,null,null,null),
-      hi("Loch 7", 435,null,null,null,null), hi("Loch 8", 185,null,null,null,null),
-      hi("Loch 9", 557,null,null,null,null),
-      hi("Loch 10",373,null,null,null,null), hi("Loch 11",147,null,null,null,null),
+      // hw=Grey Champion, hy=Green Men, hb=Beige Senior, db/dr=Red Ladies
+      hi("Loch 1", 362,352,303,282,282), hi("Loch 2", 216,196,156,120,120),
+      hi("Loch 3", 429,398,336,317,317), hi("Loch 4", 452,419,377,356,356),
+      hi("Loch 5", 502,483,420,365,365), hi("Loch 6", 312,297,282,264,264),
+      hi("Loch 7", 435,402,354,328,328), hi("Loch 8", 185,166,127, 92, 92),
+      hi("Loch 9", 557,540,492,460,460),
+      hi("Loch 10",373,357,303,286,286), hi("Loch 11",147,null,null,null,null),
       hi("Loch 12",440,null,null,null,null), hi("Loch 13",487,null,null,null,null),
       hi("Loch 14",330,null,null,null,null), hi("Loch 15",436,null,null,null,null),
       hi("Loch 16",534,null,null,null,null), hi("Loch 17",170,null,null,null,null),
       hi("Loch 18",563,null,null,null,null),
     ],
     tees: {
-      hw: {label:"Black (H)",  short:"Blk", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:77.8, slope:149},
-      hy: {label:"Yellow (H)", short:"Y·H", gender:"H", bg:"#f0c800", ring:"#b89600", cr:74.1, slope:141},
-      hb: {label:"White (H)",  short:"W·H", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:70.9, slope:137},
-      db: {label:"Blue (D)",   short:"B·D", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:76.2, slope:141},
-      dr: {label:"Red (D)",    short:"R·D", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:73.3, slope:133},
+      hw: {label:"Grey Champion", short:"Gry", gender:"H", bg:"#9ca3af", ring:"#6b7280", cr:78.8, slope:155},
+      hy: {label:"Green Men",     short:"Grn", gender:"H", bg:"#16a34a", ring:"#15803d", cr:76.0, slope:153},
+      hb: {label:"Beige Senior",  short:"Bge", gender:"H", bg:"#e7d8b5", ring:"#b8a47a", cr:71.8, slope:143},
+      db: {label:"Red Ladies",    short:"R·L", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.8, slope:140},
+      dr: {label:"Red Ladies",    short:"R·L", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.8, slope:140},
     },
   },
   // ── Fancourt: Links Experience (9 Loch, Par 34 · 2× gespielt = Par 68) ───
@@ -941,12 +935,18 @@ function saveHistory(entry) {
   } catch {}
 }
 
-// Always keep user-edited courses, but append any new DEFAULT_COURSES not yet in saved list
+// Always keep user-edited courses, but append any new DEFAULT_COURSES not yet in saved list.
+// A default with a higher `rev` than the saved copy replaces it once (corrected course data).
 function mergeCourses(saved) {
   if (!saved || !Array.isArray(saved)) return DEFAULT_COURSES;
+  const defaults = new Map(DEFAULT_COURSES.map(c => [c.id, c]));
+  const merged   = saved.map(c => {
+    const d = defaults.get(c.id);
+    return d && (d.rev ?? 0) > (c.rev ?? 0) ? d : c;
+  });
   const savedIds = new Set(saved.map(c => c.id));
   const newOnes  = DEFAULT_COURSES.filter(c => !savedIds.has(c.id));
-  return [...saved, ...newOnes];
+  return [...merged, ...newOnes];
 }
 
 function newBlankCourse(name, shortName, unit) {
