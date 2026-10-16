@@ -188,6 +188,134 @@ const DEFAULT_COURSES = [
       dr: {label:"Rojas (D)",     short:"RoD",  gender:"D", bg:"#e74c3c", ring:"#c0392b", cr:70.1, slope:127},
     },
   },
+  // ── Fancourt (George, Südafrika): The Links (Par 73) ─────────────────────
+  // Ratings (SA Top 100): Black 77.8/149, Yellow 74.1/141, White 70.9/137,
+  //   Blue 70.0/132, Red 67.7/123 (Herren); Damen Blue 76.2/141, Red 73.3/133
+  // Lochlängen nur für Black bekannt (Summe 6930 m) · Damen-HCP lt. GolfPass
+  {
+    id: "fancourt_links", name: "Fancourt: The Links", shortName: "FC·L", unit: "m",
+    holes: [
+      {nr:1, hcp:16,par:4, hcpByTee:{db:4, dr:4}},  {nr:2, hcp:6, par:3, hcpByTee:{db:16,dr:16}},
+      {nr:3, hcp:2, par:4, hcpByTee:{db:2, dr:2}},  {nr:4, hcp:8, par:4, hcpByTee:{db:10,dr:10}},
+      {nr:5, hcp:18,par:5, hcpByTee:{db:8, dr:8}},  {nr:6, hcp:14,par:4, hcpByTee:{db:14,dr:14}},
+      {nr:7, hcp:4, par:4, hcpByTee:{db:12,dr:12}}, {nr:8, hcp:12,par:3, hcpByTee:{db:18,dr:18}},
+      {nr:9, hcp:10,par:5, hcpByTee:{db:6, dr:6}},
+      {nr:10,hcp:3, par:4, hcpByTee:{db:1, dr:1}},  {nr:11,hcp:17,par:3, hcpByTee:{db:17,dr:17}},
+      {nr:12,hcp:1, par:4, hcpByTee:{db:11,dr:11}}, {nr:13,hcp:13,par:5, hcpByTee:{db:5, dr:5}},
+      {nr:14,hcp:15,par:4, hcpByTee:{db:7, dr:7}},  {nr:15,hcp:5, par:4, hcpByTee:{db:3, dr:3}},
+      {nr:16,hcp:7, par:5, hcpByTee:{db:9, dr:9}},  {nr:17,hcp:9, par:3, hcpByTee:{db:13,dr:13}},
+      {nr:18,hcp:11,par:5, hcpByTee:{db:15,dr:15}},
+    ],
+    holeInfo: [
+      // hw=Black · übrige Abschläge nicht verfügbar → editierbar
+      hi("Loch 1", 362,null,null,null,null), hi("Loch 2", 216,null,null,null,null),
+      hi("Loch 3", 429,null,null,null,null), hi("Loch 4", 452,null,null,null,null),
+      hi("Loch 5", 502,null,null,null,null), hi("Loch 6", 312,null,null,null,null),
+      hi("Loch 7", 435,null,null,null,null), hi("Loch 8", 185,null,null,null,null),
+      hi("Loch 9", 557,null,null,null,null),
+      hi("Loch 10",373,null,null,null,null), hi("Loch 11",147,null,null,null,null),
+      hi("Loch 12",440,null,null,null,null), hi("Loch 13",487,null,null,null,null),
+      hi("Loch 14",330,null,null,null,null), hi("Loch 15",436,null,null,null,null),
+      hi("Loch 16",534,null,null,null,null), hi("Loch 17",170,null,null,null,null),
+      hi("Loch 18",563,null,null,null,null),
+    ],
+    tees: {
+      hw: {label:"Black (H)",  short:"Blk", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:77.8, slope:149},
+      hy: {label:"Yellow (H)", short:"Y·H", gender:"H", bg:"#f0c800", ring:"#b89600", cr:74.1, slope:141},
+      hb: {label:"White (H)",  short:"W·H", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:70.9, slope:137},
+      db: {label:"Blue (D)",   short:"B·D", gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:76.2, slope:141},
+      dr: {label:"Red (D)",    short:"R·D", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:73.3, slope:133},
+    },
+  },
+  // ── Fancourt: Links Experience (9 Loch, Par 34 · 2× gespielt = Par 68) ───
+  // Gary Player Design, eröffnet 2025 · 1× Par 5, 3× Par 3, 5× Par 4
+  // Belegt: L1 Wamkelekile 343 yd (Par 4), L3 It'll Be a Skoosh 105 yd (Par 3),
+  //         L9 Up the Hill = längstes Loch (Par 5)
+  // PLATZHALTER: Par von L2/4/5/6/7/8, HCP-Reihenfolge, CR/Slope (68.0/113 ⇒
+  // Spielvorgabe = HCP-Index) → bitte mit Scorekarte vor Ort im Kurs-Editor prüfen
+  {
+    id: "fancourt_lx", name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
+    holes: [
+      {nr:1, hcp:7, par:4},{nr:2, hcp:3, par:4},{nr:3, hcp:17,par:3},{nr:4, hcp:5, par:4},
+      {nr:5, hcp:9, par:4},{nr:6, hcp:15,par:3},{nr:7, hcp:11,par:4},{nr:8, hcp:13,par:3},{nr:9, hcp:1, par:5},
+      {nr:10,hcp:8, par:4},{nr:11,hcp:4, par:4},{nr:12,hcp:18,par:3},{nr:13,hcp:6, par:4},
+      {nr:14,hcp:10,par:4},{nr:15,hcp:16,par:3},{nr:16,hcp:12,par:4},{nr:17,hcp:14,par:3},{nr:18,hcp:2, par:5},
+    ],
+    holeInfo: [
+      hi("Wamkelekile", 314,null,null,null,null), hi("Down the Hill",    null,null,null,null,null),
+      hi("It'll Be a Skoosh", 96,null,null,null,null), hi("Devil's Elbow", null,null,null,null,null),
+      hi("Low Land",    null,null,null,null,null), hi("Beag",             null,null,null,null,null),
+      hi("Wide",        null,null,null,null,null), hi("Mulligan",         null,null,null,null,null),
+      hi("Up the Hill", null,null,null,null,null),
+      hi("Wamkelekile*", 314,null,null,null,null), hi("Down the Hill*",   null,null,null,null,null),
+      hi("It'll Be a Skoosh*", 96,null,null,null,null), hi("Devil's Elbow*", null,null,null,null,null),
+      hi("Low Land*",   null,null,null,null,null), hi("Beag*",            null,null,null,null,null),
+      hi("Wide*",       null,null,null,null,null), hi("Mulligan*",        null,null,null,null,null),
+      hi("Up the Hill*",null,null,null,null,null),
+    ],
+    tees: {
+      hw: {label:"Abschlag lang (CR/Slope unbekannt)", short:"L",   gender:"H", bg:"#1c1c1e", ring:"#555555", cr:68.0, slope:113},
+      hy: {label:"Abschlag mittel (CR/Slope unbekannt)",short:"M",  gender:"H", bg:"#f0c800", ring:"#b89600", cr:68.0, slope:113},
+      hb: {label:"Abschlag kurz (CR/Slope unbekannt)", short:"K",   gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:68.0, slope:113},
+      db: {label:"Damen (CR/Slope unbekannt)",         short:"D",   gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:68.0, slope:113},
+      dr: {label:"Damen kurz (CR/Slope unbekannt)",    short:"D·K", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:68.0, slope:113},
+    },
+  },
+  // ── Fancourt: Montagu (Par 72) ───────────────────────────────────────────
+  // Ratings (homeofgolf.africa): Protea 76.1/145, Springbok 74.0/140,
+  //   Galjoen 70.3/134, Yellowwood 67.9/127, Blue Crane 66.3/120 (Herren-Ratings;
+  //   Damen-Ratings nicht gefunden → bei Bedarf im Abschläge-Tab anpassen)
+  // Längen: GolfPass-Yards ×0.9144 + Hole19/SharkClub (Summen 6714/6324/5669/5302/5002 m)
+  {
+    id: "fancourt_montagu", name: "Fancourt: Montagu", shortName: "FC·M", unit: "m",
+    holes: [
+      {nr:1, hcp:11,par:4},{nr:2, hcp:15,par:3},{nr:3, hcp:3, par:4},{nr:4, hcp:17,par:5},
+      {nr:5, hcp:9, par:4},{nr:6, hcp:1, par:4},{nr:7, hcp:5, par:4},{nr:8, hcp:7, par:3},{nr:9, hcp:13,par:5},
+      {nr:10,hcp:12,par:5},{nr:11,hcp:16,par:4},{nr:12,hcp:14,par:3},{nr:13,hcp:2, par:4},
+      {nr:14,hcp:6, par:4},{nr:15,hcp:4, par:4},{nr:16,hcp:18,par:4},{nr:17,hcp:8, par:3},{nr:18,hcp:10,par:5},
+    ],
+    holeInfo: [
+      // hw=Protea, hy=Springbok, hb=Galjoen, db=Yellowwood, dr=Blue Crane
+      hi("Loch 1", 383,354,325,278,277), hi("Loch 2", 178,176,156,115,114),
+      hi("Loch 3", 416,403,370,341,322), hi("Loch 4", 527,510,446,446,398),
+      hi("Loch 5", 389,365,319,272,271), hi("Loch 6", 418,399,355,322,321),
+      hi("Loch 7", 427,404,353,353,334), hi("Loch 8", 182,170,144,116,111),
+      hi("Loch 9", 541,518,444,444,404),
+      hi("Loch 10",496,468,461,461,430), hi("Loch 11",354,334,326,326,301),
+      hi("Loch 12",190,173,145,110,109), hi("Loch 13",441,392,364,318,317),
+      hi("Loch 14",392,366,309,309,279), hi("Loch 15",391,380,333,333,295),
+      hi("Loch 16",315,301,273,273,236), hi("Loch 17",190,160,143,117,116),
+      hi("Loch 18",484,451,403,368,367),
+    ],
+    tees: {
+      hw: {label:"Protea",     short:"Pro", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:76.1, slope:145},
+      hy: {label:"Springbok",  short:"Spr", gender:"H", bg:"#f0c800", ring:"#b89600", cr:74.0, slope:140},
+      hb: {label:"Galjoen",    short:"Gal", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:70.3, slope:134},
+      db: {label:"Yellowwood", short:"YW",  gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:67.9, slope:127},
+      dr: {label:"Blue Crane", short:"BC",  gender:"H", bg:"#c0392b", ring:"#8b0000", cr:66.3, slope:120},
+    },
+  },
+  // ── Fancourt: Outeniqua (Par 72) ─────────────────────────────────────────
+  // Ratings (SA Top 100): Protea 73.9/143, Springbok 72.0/141, Galjoen 69.9/138,
+  //   Yellowwood 68.4/131, Blue Crane 66.6/126 (Herren-Ratings)
+  // Tee-Summen: 6301/5986/5603/5099/4953 m · Lochlängen pro Tee nicht verfügbar → editierbar
+  {
+    id: "fancourt_outeniqua", name: "Fancourt: Outeniqua", shortName: "FC·O", unit: "m",
+    holes: [
+      {nr:1, hcp:13,par:4},{nr:2, hcp:17,par:5},{nr:3, hcp:3, par:4},{nr:4, hcp:9, par:3},
+      {nr:5, hcp:11,par:4},{nr:6, hcp:15,par:4},{nr:7, hcp:7, par:3},{nr:8, hcp:5, par:5},{nr:9, hcp:1, par:4},
+      {nr:10,hcp:12,par:4},{nr:11,hcp:4, par:5},{nr:12,hcp:16,par:3},{nr:13,hcp:8, par:4},
+      {nr:14,hcp:2, par:4},{nr:15,hcp:14,par:3},{nr:16,hcp:6, par:4},{nr:17,hcp:18,par:5},{nr:18,hcp:10,par:4},
+    ],
+    holeInfo: Array.from({length:18}, (_,i) => hi(`Loch ${i+1}`, null,null,null,null,null)),
+    tees: {
+      hw: {label:"Protea",     short:"Pro", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:73.9, slope:143},
+      hy: {label:"Springbok",  short:"Spr", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.0, slope:141},
+      hb: {label:"Galjoen",    short:"Gal", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:69.9, slope:138},
+      db: {label:"Yellowwood", short:"YW",  gender:"H", bg:"#3b82f6", ring:"#1d4ed8", cr:68.4, slope:131},
+      dr: {label:"Blue Crane", short:"BC",  gender:"H", bg:"#c0392b", ring:"#8b0000", cr:66.6, slope:126},
+    },
+  },
   // ── GC Lengenfeld: Donauland (Par 72) ────────────────────────────────────
   {
     id: "gcl_donau", name: "GC Lengenfeld: Donauland", shortName: "GCL·D", unit: "m",
