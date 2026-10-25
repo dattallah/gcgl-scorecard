@@ -152,6 +152,37 @@ const DEFAULT_COURSES = [
       dr: {label:"Damen Rot",    short:"D·R", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:72.6, slope:123},
     },
   },
+  // ── Atlantic Beach Country Club, Melkbosstrand/Kapstadt (Par 72) ───────
+  // Scorekarte (Golf-App, Okt. 2026): Cobra (M) 72.8/127, Springbok (M) 71.0/123,
+  //   Springbok (L) 77.4/140 · Längen 6203/5864 m (Springbok M und L gleicher Abschlag)
+  {
+    id: "atlantic_beach", name: "Atlantic Beach Country Club", shortName: "ABCC", unit: "m",
+    holes: [
+      {nr:1, hcp:2,par:4},{nr:2, hcp:6,par:4},{nr:3, hcp:8,par:3},{nr:4, hcp:10,par:5},
+      {nr:5, hcp:14,par:4},{nr:6, hcp:16,par:5},{nr:7, hcp:4,par:4},{nr:8, hcp:18,par:3},{nr:9, hcp:12,par:4},
+      {nr:10, hcp:11,par:5},{nr:11, hcp:5,par:4},{nr:12, hcp:7,par:4},{nr:13, hcp:1,par:5},
+      {nr:14, hcp:13,par:3},{nr:15, hcp:9,par:4},{nr:16, hcp:17,par:3},{nr:17, hcp:3,par:4},{nr:18, hcp:15,par:4},
+    ],
+    holeInfo: [
+      // hw=Cobra, hy/hb=Springbok (M), db/dr=Springbok (L)
+      hi("Loch 1",404,382,382,382,382), hi("Loch 2",355,332,332,332,332),
+      hi("Loch 3",156,141,141,141,141), hi("Loch 4",466,453,453,453,453),
+      hi("Loch 5",337,302,302,302,302), hi("Loch 6",479,451,451,451,451),
+      hi("Loch 7",407,385,385,385,385), hi("Loch 8",143,129,129,129,129),
+      hi("Loch 9",373,346,346,346,346), hi("Loch 10",487,463,463,463,463),
+      hi("Loch 11",362,356,356,356,356), hi("Loch 12",364,336,336,336,336),
+      hi("Loch 13",490,475,475,475,475), hi("Loch 14",162,156,156,156,156),
+      hi("Loch 15",370,349,349,349,349), hi("Loch 16",154,150,150,150,150),
+      hi("Loch 17",401,389,389,389,389), hi("Loch 18",293,269,269,269,269),
+    ],
+    tees: {
+      hw: {label:"Cobra (M)",     short:"Cob", gender:"H", bg:"#f0c800", ring:"#b89600", cr:72.8, slope:127},
+      hy: {label:"Springbok (M)", short:"Spr", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:71.0, slope:123},
+      hb: {label:"Springbok (M)", short:"Spr", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:71.0, slope:123},
+      db: {label:"Springbok (L)", short:"S·L", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:77.4, slope:140},
+      dr: {label:"Springbok (L)", short:"S·L", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:77.4, slope:140},
+    },
+  },
   // ── Cabopino Golf Marbella (Par 71) ─────────────────────────────────────────
   // 3 tees: Amarillas H CR69.1/130 · Azules H CR67.9/127 · Rojas H CR65.1/123
   //          Azules D CR72.5/134 (same tee as Azules H) · Rojas D CR70.1/127 (same as Rojas H)
