@@ -252,20 +252,14 @@ const DEFAULT_COURSES = [
       dr: {label:"Red Ladies",    short:"R·L", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:74.8, slope:140},
     },
   },
-  // ── Fancourt: Links Experience (9 Loch, Par 34 · 2× gespielt = Par 68) ───
-  // Scorekarte (Okt. 2026), Gary Player Design 2025. 9-Loch-Ratings ×2 für 18 Loch:
+  // ── Fancourt: Links Experience (9 Loch, Par 34) ─────────────────────────
+  // Scorekarte (Okt. 2026), Gary Player Design 2025 · 9-Loch-Ratings (CR/Slope):
   //   Herren Black 33.3/128, Yellow 32.5/124, White 31.5/110, Red 30.0/98
   //   Damen  Black 37.1/131, Yellow 35.9/121, White 34.0/115, Red 31.8/101
-  // S.I. Karte 1–17 (ungerade) für Runde 1, +1 (gerade) für Runde 2
-  // Par-3-Variante (Blue/Green, Par 27) nicht abgebildet
+  // S.I. wie auf der Karte (1,3,…,17); Vorgabeschläge nach Rang innerhalb der 9 Loch
   {
-    id: "fancourt_lx", rev: 3, name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
-    holes: [
-      {nr:1, hcp:9,par:4},{nr:2, hcp:1,par:4},{nr:3, hcp:17,par:3},{nr:4, hcp:3,par:4},{nr:5, hcp:11,par:4},
-      {nr:6, hcp:15,par:3},{nr:7, hcp:13,par:4},{nr:8, hcp:5,par:3},{nr:9, hcp:7,par:5},
-      {nr:10, hcp:10,par:4},{nr:11, hcp:2,par:4},{nr:12, hcp:18,par:3},{nr:13, hcp:4,par:4},{nr:14, hcp:12,par:4},
-      {nr:15, hcp:16,par:3},{nr:16, hcp:14,par:4},{nr:17, hcp:6,par:3},{nr:18, hcp:8,par:5},
-    ],
+    id: "fancourt_lx", rev: 4, name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
+    holes: [{nr:1, hcp:9,par:4},{nr:2, hcp:1,par:4},{nr:3, hcp:17,par:3},{nr:4, hcp:3,par:4},{nr:5, hcp:11,par:4},{nr:6, hcp:15,par:3},{nr:7, hcp:13,par:4},{nr:8, hcp:5,par:3},{nr:9, hcp:7,par:5}],
     holeInfo: [
       // hw=Black (H), hy=Yellow (H), hb=White (H), db=White (D), dr=Red (D)
       hi("Wamkelekile", 343,335,294,294,294), hi("Down the Hill", 361,340,282,282,199),
@@ -273,18 +267,36 @@ const DEFAULT_COURSES = [
       hi("Low Land", 331,310,282,282,265), hi("Beag", 129,120,110,110,82),
       hi("Wide", 376,355,298,298,251), hi("Mulligan", 170,156,117,117,91),
       hi("Up the Hill", 484,452,448,448,348),
-      hi("Wamkelekile *", 343,335,294,294,294),
-      hi("Down the Hill *", 361,340,282,282,199), hi("It'll Be a Skoosh *", 105,105,93,93,82),
-      hi("Devil's Elbow *", 362,332,318,318,272), hi("Low Land *", 331,310,282,282,265),
-      hi("Beag *", 129,120,110,110,82), hi("Wide *", 376,355,298,298,251),
-      hi("Mulligan *", 170,156,117,117,91), hi("Up the Hill *", 484,452,448,448,348),
     ],
     tees: {
-      hw: {label:"Black (H)",  short:"Blk", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:66.6, slope:128},
-      hy: {label:"Yellow (H)", short:"Y·H", gender:"H", bg:"#f0c800", ring:"#b89600", cr:65.0, slope:124},
-      hb: {label:"White (H)",  short:"W·H", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:63.0, slope:110},
-      db: {label:"White (D)",  short:"W·D", gender:"D", bg:"#ffffff", ring:"#aaaaaa", cr:68.0, slope:115},
-      dr: {label:"Red (D)",    short:"R·D", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:63.6, slope:101},
+      hw: {label:"Black (H)",  short:"Blk", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:33.3, slope:128},
+      hy: {label:"Yellow (H)", short:"Y·H", gender:"H", bg:"#f0c800", ring:"#b89600", cr:32.5, slope:124},
+      hb: {label:"White (H)",  short:"W·H", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:31.5, slope:110},
+      db: {label:"White (D)",  short:"W·D", gender:"D", bg:"#ffffff", ring:"#aaaaaa", cr:34.0, slope:115},
+      dr: {label:"Red (D)",    short:"R·D", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:31.8, slope:101},
+    },
+  },
+  // ── Fancourt: Links Experience Par 3 (9 Loch, Par 27) ────────────────────
+  // Scorekarte: eigene Par-3-Abschläge Blue (1082) / Green (834)
+  //   9-Loch-Ratings: Blue H 26.8/85, D 28.2/83 · Green H 25.7/76, D 27.1/85
+  // S.I.: Karte nennt nur eine S.I.-Zeile (vom Full Course) → hier übernommen
+  {
+    id: "fancourt_lx3", name: "Fancourt: Links Experience Par 3", shortName: "FC·LX3", unit: "m",
+    holes: [{nr:1, hcp:9,par:3},{nr:2, hcp:1,par:3},{nr:3, hcp:17,par:3},{nr:4, hcp:3,par:3},{nr:5, hcp:11,par:3},{nr:6, hcp:15,par:3},{nr:7, hcp:13,par:3},{nr:8, hcp:5,par:3},{nr:9, hcp:7,par:3}],
+    holeInfo: [
+      // hw=Blue (H), hy/hb=Green (H), db=Blue (D), dr=Green (D)
+      hi("Wamkelekile", 113,85,85,113,85), hi("Down the Hill", 148,119,119,148,119),
+      hi("It'll Be a Skoosh", 93,82,82,93,82), hi("Devil's Elbow", 133,97,97,133,97),
+      hi("Low Land", 158,118,118,158,118), hi("Beag", 110,82,82,110,82),
+      hi("Wide", 104,78,78,104,78), hi("Mulligan", 117,91,91,117,91),
+      hi("Up the Hill", 106,82,82,106,82),
+    ],
+    tees: {
+      hw: {label:"Blue (H)",  short:"B·H", gender:"H", bg:"#1e3a5f", ring:"#0f2440", cr:26.8, slope:85},
+      hy: {label:"Green (H)", short:"G·H", gender:"H", bg:"#16a34a", ring:"#15803d", cr:25.7, slope:76},
+      hb: {label:"Green (H)", short:"G·H", gender:"H", bg:"#16a34a", ring:"#15803d", cr:25.7, slope:76},
+      db: {label:"Blue (D)",  short:"B·D", gender:"D", bg:"#1e3a5f", ring:"#0f2440", cr:28.2, slope:83},
+      dr: {label:"Green (D)", short:"G·D", gender:"D", bg:"#16a34a", ring:"#15803d", cr:27.1, slope:85},
     },
   },
   // ── Fancourt: Montagu (Par 72) ───────────────────────────────────────────
@@ -1007,9 +1019,9 @@ function loadSaved() {
 }
 
 // ── Pure helpers ──────────────────────────────────────────────────────────────
-// PHI = round( HCI × Slope/113 + (CR − Par) )
-function calcPlayingHcp(hcpIndex, teeObj, par) {
-  const idx = parseFloat(String(hcpIndex ?? "0").replace(",", ".")) || 0;
+// PHI = round( HCI × Slope/113 + (CR − Par) ); 9-Loch-Platz: HCI/2 und 9-Loch-CR (WHS)
+function calcPlayingHcp(hcpIndex, teeObj, par, nHoles = 18) {
+  const idx = (parseFloat(String(hcpIndex ?? "0").replace(",", ".")) || 0) * nHoles / 18;
   if (!teeObj) return Math.round(idx);
   return Math.round(idx * (teeObj.slope / 113) + (teeObj.cr - par));
 }
@@ -1022,6 +1034,20 @@ function strokesOnHole(playingHcp, holeHcp) {
 // Per-tee HCP: if hole has hcpByTee map, use it; else fall back to hole.hcp
 function holeHcpForTee(hole, teeKey) {
   return hole.hcpByTee?.[teeKey] ?? hole.hcp;
+}
+// Strokes on hole hi; on a 9-hole course the S.I. is ranked within the 9 holes
+// (cards print 1,3,…,17), so a playing handicap of 9 gives one stroke per hole.
+function strokesFor(playingHcp, holes, hi, teeKey) {
+  const own = holeHcpForTee(holes[hi], teeKey);
+  if (holes.length === 18) return strokesOnHole(playingHcp, own);
+  const hcp = Math.floor(playingHcp || 0);
+  if (hcp <= 0) return 0;
+  const n = holes.length, rank = 1 + holes.filter(h => holeHcpForTee(h, teeKey) < own).length;
+  return Math.floor(hcp / n) + (hcp % n > 0 && rank <= hcp % n ? 1 : 0);
+}
+// CR for a 9-hole score: a 9-hole course stores 9-hole CR, an 18-hole course half of it
+function cr9(tee, nHoles) {
+  return nHoles === 9 ? tee.cr : Math.round(tee.cr / 2 * 10) / 10;
 }
 function stablefordPts(netDiff) { return Math.max(0, 2 - netDiff); }
 function diffLabel(d) { return d === 0 ? "E" : d > 0 ? `+${d}` : `${d}`; }
@@ -1169,7 +1195,7 @@ const CourseManagerModal = memo(function CourseManagerModal({
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:15,color:TEXT,fontWeight:isActive?"bold":"normal",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</div>
-                      <div style={{fontSize:11,color:MUTED,marginTop:1}}>Par {cPar} · 18 Holes · {c.unit}</div>
+                      <div style={{fontSize:11,color:MUTED,marginTop:1}}>Par {cPar} · {c.holes.length} Holes · {c.unit}</div>
                     </div>
                     {isActive
                       ? <span style={{fontSize:13,color:G,fontWeight:"bold",flexShrink:0}}>● Aktiv →</span>
@@ -1198,7 +1224,7 @@ const CourseManagerModal = memo(function CourseManagerModal({
                 <tbody>
                   {TEE_KEYS.map(key => {
                     const t    = ac.tees[key];
-                    const phi  = calcPlayingHcp(18, t, totalPar);
+                    const phi  = calcPlayingHcp(18, t, totalPar, ac.holes.length);
                     return (
                       <tr key={key} style={{borderBottom:`1px solid ${LINE}`}}>
                         <td style={{padding:"8px 0"}}>
@@ -1456,7 +1482,7 @@ const ScoreDetailModal = memo(function ScoreDetailModal({
   // Per-hole data
   const rows = holes.map((hole, hi) => {
     const val   = scores[hi];
-    const extra = strokesOnHole(playingHcp, holeHcpForTee(hole, playerTeeKey));
+    const extra = strokesFor(playingHcp, holes, hi, playerTeeKey);
     const gross = (val !== "" && val !== "NR") ? parseInt(val) : null;
     const net   = gross !== null ? gross - extra : null;
     const pts   = val === "NR" ? 0 : net !== null ? stablefordPts(net - hole.par) : null;
@@ -1476,7 +1502,7 @@ const ScoreDetailModal = memo(function ScoreDetailModal({
   const parB      = holes.slice(9).reduce((a,h)=>a+h.par,0);
 
   // Determine round type and compute score diff + new HCI
-  const is18 = played18 >= 15;
+  const is18 = holes.length === 18 && played18 >= 15;
   const is9f = !is18 && played9f >= 7;
   const is9b = !is18 && !is9f && played9b >= 7;
   const roundLabel = is18 ? "18 Loch" : is9f ? "9 Loch (Front)" : is9b ? "9 Loch (Back)" : null;
@@ -1487,11 +1513,11 @@ const ScoreDetailModal = memo(function ScoreDetailModal({
     diff   = calcScoreDiff(bruttoAll, tee.cr, tee.slope);
     newHci = calcNewHCI(playerHcp, diff);
   } else if (is9f && bruttoF > 0) {
-    usedBrutto = bruttoF; usedCR = Math.round(tee.cr/2*10)/10; usedSlope = tee.slope;
+    usedBrutto = bruttoF; usedCR = cr9(tee, holes.length); usedSlope = tee.slope;
     diff   = calcScoreDiff(bruttoF, usedCR, tee.slope);
     newHci = calcNewHCI(playerHcp, diff);
   } else if (is9b && bruttoB > 0) {
-    usedBrutto = bruttoB; usedCR = Math.round(tee.cr/2*10)/10; usedSlope = tee.slope;
+    usedBrutto = bruttoB; usedCR = cr9(tee, holes.length); usedSlope = tee.slope;
     diff   = calcScoreDiff(bruttoB, usedCR, tee.slope);
     newHci = calcNewHCI(playerHcp, diff);
   }
@@ -1569,14 +1595,14 @@ const ScoreDetailModal = memo(function ScoreDetailModal({
                 );
               })}
               {/* IN + Total */}
-              <tr style={{background:"#e8e2d4"}}>
+              {holes.length === 18 && <tr style={{background:"#e8e2d4"}}>
                 <td style={{...colD({fontWeight:"bold",color:G,fontSize:11}),textAlign:"left",paddingLeft:8}}>IN</td>
                 <td style={colD({fontWeight:"bold",color:G})}>{parB}</td>
                 <td style={colD()}/><td style={colD()}/>
                 <td style={colD({fontWeight:"bold"})}>{bruttoB||"—"}</td>
                 <td style={colD()}/>
                 <td style={colD({fontWeight:"bold",color:"#16a34a"})}>{rows.slice(9).reduce((a,r)=>a+(r.pts||0),0)}</td>
-              </tr>
+              </tr>}
               <tr style={{background:G}}>
                 <td style={{...colD({fontWeight:"bold",color:"#fff",fontSize:12}),textAlign:"left",paddingLeft:8}}>TOT</td>
                 <td style={colD({fontWeight:"bold",color:GOLD})}>{totalPar}</td>
@@ -1836,13 +1862,15 @@ function GolfScorecard() {
   const frontPar     = useMemo(()=>holes.slice(0,9).reduce((a,h)=>a+h.par,0),[holes]);
   const backPar      = useMemo(()=>holes.slice(9,18).reduce((a,h)=>a+h.par,0),[holes]);
   const totalPar     = frontPar + backPar;
-  const offset       = half==="back"?9:0;
-  const displayHoles = useMemo(()=>half==="front"?holes.slice(0,9):half==="back"?holes.slice(9,18):holes,[half,holes]);
+  const nHoles       = holes.length;
+  const view         = nHoles===9 ? "front" : half;
+  const offset       = view==="back"?9:0;
+  const displayHoles = useMemo(()=>view==="front"?holes.slice(0,9):view==="back"?holes.slice(9,18):holes,[view,holes]);
   const fmtSaved     = useMemo(()=>savedAt?new Date(savedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):null,[savedAt]);
 
   const playingHcps  = useMemo(
-    ()=>playerHcps.map((hci,i)=>calcPlayingHcp(hci,tees[playerTees[i]],totalPar)),
-    [playerHcps,playerTees,tees,totalPar]
+    ()=>playerHcps.map((hci,i)=>calcPlayingHcp(hci,tees[playerTees[i]],totalPar,nHoles)),
+    [playerHcps,playerTees,tees,totalPar,nHoles]
   );
 
   // ── Callbacks ─────────────────────────────────────────────────────────────
@@ -1905,7 +1933,7 @@ function GolfScorecard() {
     const v=scores[pi][hi];
     if (v===""||v==="NR") return null;
     const g=parseInt(v);
-    return isNaN(g)?null:g-strokesOnHole(playingHcps[pi],holeHcpForTee(holes[hi],playerTees[pi]));
+    return isNaN(g)?null:g-strokesFor(playingHcps[pi],holes,hi,playerTees[pi]);
   },[scores,playingHcps,holes,playerTees]);
 
   const totalNet = useCallback((pi,from,to)=>
@@ -1938,34 +1966,34 @@ function GolfScorecard() {
   const newRound = useCallback(()=>{
     // ── Save Player 1 (owner) round to history before clearing ────────────
     const pi = 0;
-    const played = scores[pi].filter(v=>v!=="").length;
+    const played = scores[pi].slice(0,holes.length).filter(v=>v!=="").length;
     if (played >= 7) {  // at least 7 holes
       const teeKey = playerTees[pi];
       const tee    = tees[teeKey] || Object.values(tees)[0];
       const phi    = playingHcps[pi];
-      const brutto = scores[pi].reduce((a,v)=>(v===""||v==="NR")?a:a+(parseInt(v)||0),0);
+      const brutto = scores[pi].slice(0,holes.length).reduce((a,v)=>(v===""||v==="NR")?a:a+(parseInt(v)||0),0);
       const netto  = brutto > 0 ? holes.reduce((a,h,hi)=>{
         const v=scores[pi][hi];
         if(v===""||v==="NR") return a;
-        return a+(parseInt(v)||0)-strokesOnHole(phi,holeHcpForTee(h,teeKey));
+        return a+(parseInt(v)||0)-strokesFor(phi,holes,hi,teeKey);
       },0) : 0;
       const stblfd = played >= 7 ? holes.reduce((a,h,hi)=>{
         const v=scores[pi][hi];
         if(v==="NR") return a;
         const g=parseInt(v);
         if(isNaN(g)) return a;
-        const net=g-strokesOnHole(phi,holeHcpForTee(h,teeKey));
+        const net=g-strokesFor(phi,holes,hi,teeKey);
         return a+stablefordPts(net-h.par);
       },0) : 0;
       // Score diff + new HCI
-      const is18 = played >= 15;
+      const is18 = holes.length === 18 && played >= 15;
       const is9  = !is18 && played >= 7;
       let diff=null, newHci=null;
       if (is18 && brutto>0) {
         diff   = calcScoreDiff(brutto, tee.cr, tee.slope);
         newHci = calcNewHCI(playerHcps[pi], diff);
       } else if (is9 && brutto>0) {
-        diff   = calcScoreDiff(brutto, Math.round(tee.cr/2*10)/10, tee.slope);
+        diff   = calcScoreDiff(brutto, cr9(tee, holes.length), tee.slope);
         newHci = calcNewHCI(playerHcps[pi], diff);
       }
       const hciNum  = parseFloat(String(playerHcps[pi]).replace(",","."))||0;
@@ -2171,9 +2199,9 @@ function GolfScorecard() {
 
       {/* ── Tabs ── */}
       <div style={{display:"flex",background:G,borderBottom:`2px solid ${G}`}}>
-        {[["front","Front 9"],["back","Back 9"],["total","All 18"]].map(([key,label])=>(
+        {(nHoles===9?[["front","9 Loch"]]:[["front","Front 9"],["back","Back 9"],["total","All 18"]]).map(([key,label])=>(
           <button key={key} onClick={()=>setHalf(key)}
-            style={{flex:1,padding:"8px 4px",background:half===key?"#fff":"transparent",color:half===key?G:"rgba(255,255,255,0.55)",border:"none",cursor:"pointer",fontSize:13,letterSpacing:"0.04em",fontFamily:"Georgia, serif",fontWeight:half===key?"bold":"normal",borderRadius:half===key?"4px 4px 0 0":0}}>
+            style={{flex:1,padding:"8px 4px",background:view===key?"#fff":"transparent",color:view===key?G:"rgba(255,255,255,0.55)",border:"none",cursor:"pointer",fontSize:13,letterSpacing:"0.04em",fontFamily:"Georgia, serif",fontWeight:view===key?"bold":"normal",borderRadius:view===key?"4px 4px 0 0":0}}>
             {label}
           </button>
         ))}
@@ -2233,7 +2261,7 @@ function GolfScorecard() {
                     )}
                   </td>
                   {[0,1,2,3].map(pi=>{
-                    const val=scores[pi][hi], extra=strokesOnHole(playingHcps[pi],holeHcpForTee(hole,playerTees[pi]));
+                    const val=scores[pi][hi], extra=strokesFor(playingHcps[pi],holes,hi,playerTees[pi]);
                     return (
                       <td key={pi} style={cs({padding:0,cursor:"pointer"})} onClick={()=>setStepper({hole,pi,hi})}>
                         <div style={{position:"relative",display:"flex",alignItems:"center",justifyContent:"center",height:38}}>
@@ -2254,12 +2282,12 @@ function GolfScorecard() {
             })}
 
             {/* OUT/IN subtotal */}
-            {half!=="total"&&(()=>{
-              const from=half==="front"?0:9, to=half==="front"?9:18;
-              const par=half==="front"?frontPar:backPar;
+            {view!=="total"&&(()=>{
+              const from=view==="front"?0:9, to=view==="front"?9:18;
+              const par=view==="front"?frontPar:backPar;
               return (
                 <tr style={{background:"#e8e2d4",borderTop:`2px solid ${G}`}}>
-                  <td colSpan={2} style={cs({fontWeight:"bold",fontSize:12,color:G})}>{half==="front"?"OUT":"IN"}</td>
+                  <td colSpan={2} style={cs({fontWeight:"bold",fontSize:12,color:G})}>{nHoles===9?"TOT":view==="front"?"OUT":"IN"}</td>
                   <td style={cs({fontWeight:"bold",color:G,fontSize:14})}>{par}</td>
                   {[0,1,2,3].map(pi=>{
                     const s=grossScore(pi,from,to), d=s>0?s-par:null;
@@ -2274,7 +2302,7 @@ function GolfScorecard() {
             })()}
 
             {/* All-18 OUT+IN rows */}
-            {half==="total"&&[["OUT",0,9,frontPar],["IN",9,18,backPar]].map(([label,from,to,par])=>(
+            {view==="total"&&[["OUT",0,9,frontPar],["IN",9,18,backPar]].map(([label,from,to,par])=>(
               <tr key={label} style={{background:"#e8e2d4",borderTop:label==="OUT"?`2px solid ${G}`:"none"}}>
                 <td colSpan={2} style={cs({fontWeight:"bold",fontSize:12,color:G})}>{label}</td>
                 <td style={cs({fontWeight:"bold",color:G,fontSize:14})}>{par}</td>
@@ -2293,24 +2321,24 @@ function GolfScorecard() {
         <div style={{fontSize:11,color:GOLD,letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:8}}>Total — Par {totalPar}</div>
         <div style={{display:"flex",gap:5}}>
           {playerNames.map((name,pi)=>{
-            const brutto=grossScore(pi,0,18),netto=totalNet(pi,0,18),stbl=totalStableford(pi,0,18);
-            const {won,halved}=holesWon(pi,0,18);
+            const brutto=grossScore(pi,0,nHoles),netto=totalNet(pi,0,nHoles),stbl=totalStableford(pi,0,nHoles);
+            const {won,halved}=holesWon(pi,0,nHoles);
             const bD=brutto>0?brutto-totalPar:null, nD=brutto>0?netto-totalPar:null;
             const has=hasAnyScore(pi), tee=tees[playerTees[pi]]||Object.values(tees)[0];
             // New HCI estimate
-            const played18 = scores[pi].filter(v=>v!=="").length;
+            const played18 = nHoles===18 ? scores[pi].filter(v=>v!=="").length : 0;
             const played9f  = scores[pi].slice(0,9).filter(v=>v!=="").length;
-            const played9b  = scores[pi].slice(9).filter(v=>v!=="").length;
+            const played9b  = nHoles===18 ? scores[pi].slice(9).filter(v=>v!=="").length : 0;
             const bruttoF   = grossScore(pi,0,9), bruttoB = grossScore(pi,9,18);
             let diff=null, newHci=null;
             if (played18>=15 && brutto>0) {
               diff=calcScoreDiff(brutto,tee.cr,tee.slope);
               newHci=calcNewHCI(playerHcps[pi],diff);
             } else if (played9f>=7 && bruttoF>0) {
-              diff=calcScoreDiff(bruttoF,Math.round(tee.cr/2*10)/10,tee.slope);
+              diff=calcScoreDiff(bruttoF,cr9(tee,nHoles),tee.slope);
               newHci=calcNewHCI(playerHcps[pi],diff);
             } else if (played9b>=7 && bruttoB>0) {
-              diff=calcScoreDiff(bruttoB,Math.round(tee.cr/2*10)/10,tee.slope);
+              diff=calcScoreDiff(bruttoB,cr9(tee,nHoles),tee.slope);
               newHci=calcNewHCI(playerHcps[pi],diff);
             }
             const hciNum=parseFloat(String(playerHcps[pi]).replace(",","."))||0;
