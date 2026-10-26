@@ -253,37 +253,38 @@ const DEFAULT_COURSES = [
     },
   },
   // ── Fancourt: Links Experience (9 Loch, Par 34 · 2× gespielt = Par 68) ───
-  // Gary Player Design, eröffnet 2025 · 1× Par 5, 3× Par 3, 5× Par 4
-  // Belegt: L1 Wamkelekile 343 yd (Par 4), L3 It'll Be a Skoosh 105 yd (Par 3),
-  //         L9 Up the Hill = längstes Loch (Par 5)
-  // PLATZHALTER: Par von L2/4/5/6/7/8, HCP-Reihenfolge, CR/Slope (68.0/113 ⇒
-  // Spielvorgabe = HCP-Index) → bitte mit Scorekarte vor Ort im Kurs-Editor prüfen
+  // Scorekarte (Okt. 2026), Gary Player Design 2025. 9-Loch-Ratings ×2 für 18 Loch:
+  //   Herren Black 33.3/128, Yellow 32.5/124, White 31.5/110, Red 30.0/98
+  //   Damen  Black 37.1/131, Yellow 35.9/121, White 34.0/115, Red 31.8/101
+  // S.I. Karte 1–17 (ungerade) für Runde 1, +1 (gerade) für Runde 2
+  // Par-3-Variante (Blue/Green, Par 27) nicht abgebildet
   {
-    id: "fancourt_lx", rev: 2, name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
+    id: "fancourt_lx", rev: 3, name: "Fancourt: Links Experience", shortName: "FC·LX", unit: "m",
     holes: [
-      {nr:1, hcp:7, par:4},{nr:2, hcp:3, par:4},{nr:3, hcp:17,par:3},{nr:4, hcp:5, par:4},
-      {nr:5, hcp:9, par:4},{nr:6, hcp:15,par:3},{nr:7, hcp:11,par:4},{nr:8, hcp:13,par:3},{nr:9, hcp:1, par:5},
-      {nr:10,hcp:8, par:4},{nr:11,hcp:4, par:4},{nr:12,hcp:18,par:3},{nr:13,hcp:6, par:4},
-      {nr:14,hcp:10,par:4},{nr:15,hcp:16,par:3},{nr:16,hcp:12,par:4},{nr:17,hcp:14,par:3},{nr:18,hcp:2, par:5},
+      {nr:1, hcp:9,par:4},{nr:2, hcp:1,par:4},{nr:3, hcp:17,par:3},{nr:4, hcp:3,par:4},{nr:5, hcp:11,par:4},
+      {nr:6, hcp:15,par:3},{nr:7, hcp:13,par:4},{nr:8, hcp:5,par:3},{nr:9, hcp:7,par:5},
+      {nr:10, hcp:10,par:4},{nr:11, hcp:2,par:4},{nr:12, hcp:18,par:3},{nr:13, hcp:4,par:4},{nr:14, hcp:12,par:4},
+      {nr:15, hcp:16,par:3},{nr:16, hcp:14,par:4},{nr:17, hcp:6,par:3},{nr:18, hcp:8,par:5},
     ],
     holeInfo: [
-      hi("Wamkelekile", 314,null,null,null,null), hi("Down the Hill",    null,null,null,null,null),
-      hi("It'll Be a Skoosh", 96,null,null,null,null), hi("Devil's Elbow", null,null,null,null,null),
-      hi("Low Land",    null,null,null,null,null), hi("Beag",             null,null,null,null,null),
-      hi("Wide",        null,null,null,null,null), hi("Mulligan",         null,null,null,null,null),
-      hi("Up the Hill", null,null,null,null,null),
-      hi("Wamkelekile*", 314,null,null,null,null), hi("Down the Hill*",   null,null,null,null,null),
-      hi("It'll Be a Skoosh*", 96,null,null,null,null), hi("Devil's Elbow*", null,null,null,null,null),
-      hi("Low Land*",   null,null,null,null,null), hi("Beag*",            null,null,null,null,null),
-      hi("Wide*",       null,null,null,null,null), hi("Mulligan*",        null,null,null,null,null),
-      hi("Up the Hill*",null,null,null,null,null),
+      // hw=Black (H), hy=Yellow (H), hb=White (H), db=White (D), dr=Red (D)
+      hi("Wamkelekile", 343,335,294,294,294), hi("Down the Hill", 361,340,282,282,199),
+      hi("It'll Be a Skoosh", 105,105,93,93,82), hi("Devil's Elbow", 362,332,318,318,272),
+      hi("Low Land", 331,310,282,282,265), hi("Beag", 129,120,110,110,82),
+      hi("Wide", 376,355,298,298,251), hi("Mulligan", 170,156,117,117,91),
+      hi("Up the Hill", 484,452,448,448,348),
+      hi("Wamkelekile *", 343,335,294,294,294),
+      hi("Down the Hill *", 361,340,282,282,199), hi("It'll Be a Skoosh *", 105,105,93,93,82),
+      hi("Devil's Elbow *", 362,332,318,318,272), hi("Low Land *", 331,310,282,282,265),
+      hi("Beag *", 129,120,110,110,82), hi("Wide *", 376,355,298,298,251),
+      hi("Mulligan *", 170,156,117,117,91), hi("Up the Hill *", 484,452,448,448,348),
     ],
     tees: {
-      hw: {label:"Lang", short:"L",   gender:"H", bg:"#1c1c1e", ring:"#555555", cr:68.0, slope:113},
-      hy: {label:"Mittel", short:"M",  gender:"H", bg:"#f0c800", ring:"#b89600", cr:68.0, slope:113},
-      hb: {label:"Kurz", short:"K",   gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:68.0, slope:113},
-      db: {label:"Damen", short:"D",   gender:"D", bg:"#3b82f6", ring:"#1d4ed8", cr:68.0, slope:113},
-      dr: {label:"Damen kurz", short:"D·K", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:68.0, slope:113},
+      hw: {label:"Black (H)",  short:"Blk", gender:"H", bg:"#1c1c1e", ring:"#555555", cr:66.6, slope:128},
+      hy: {label:"Yellow (H)", short:"Y·H", gender:"H", bg:"#f0c800", ring:"#b89600", cr:65.0, slope:124},
+      hb: {label:"White (H)",  short:"W·H", gender:"H", bg:"#ffffff", ring:"#aaaaaa", cr:63.0, slope:110},
+      db: {label:"White (D)",  short:"W·D", gender:"D", bg:"#ffffff", ring:"#aaaaaa", cr:68.0, slope:115},
+      dr: {label:"Red (D)",    short:"R·D", gender:"D", bg:"#c0392b", ring:"#8b0000", cr:63.6, slope:101},
     },
   },
   // ── Fancourt: Montagu (Par 72) ───────────────────────────────────────────
