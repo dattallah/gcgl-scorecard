@@ -972,7 +972,21 @@ const DEFAULT_PLAYER_TEES = ["hw","hy","hy","hy"];
 const DEFAULT_SCORES      = () => Array.from({length:4}, () => Array(18).fill(""));
 const SAVE_KEY            = "gcgl_round_v24";
 const HISTORY_KEY         = "gcgl_history_v1";
-const APP_VERSION         = "v26";
+const APP_VERSION         = "v27";
+// Versionshistorie – neueste zuerst; bei jeder Änderung APP_VERSION erhöhen und hier eintragen
+const CHANGELOG = [
+  { v:"v27", date:"26.10.2026", items:[
+    "Neue Plätze: Fancourt The Links, Montagu, Outeniqua (Südafrika) nach Scorekarte",
+    "Neue Plätze: Fancourt Links Experience und Links Experience Par 3 (9 Loch)",
+    "Neuer Platz: Atlantic Beach Country Club (Kapstadt)",
+    "9-Loch-Plätze: eigener Reiter, Spielvorgabe nach WHS (HCI/2), Vorgabeschläge nach S.I.-Rang",
+    "Korrigierte Platzdaten werden auf Geräten mit gespeicherten Plätzen automatisch übernommen",
+    "Versionshistorie (Tipp auf die Versionsnummer)",
+  ]},
+  { v:"v26", date:"08.10.2026", items:["Platzliste im Platz-Manager alphabetisch sortiert"] },
+  { v:"v25", date:"08.10.2026", items:["Neuer Platz: Golfclub Rhein-Sieg (Hennef)"] },
+  { v:"v24", date:"16.09.2026", items:["Übernahme von attallah.de auf GitHub Pages"] },
+];
 const MAX_HISTORY         = 20;
 const HCP_OPTS            = Array.from({length:18}, (_,i) => i+1);
 
@@ -1453,6 +1467,36 @@ const HoleModal = memo(function HoleModal({holeNr, hole, holeInfo, tees, onClose
   );
 });
 
+// ── VersionModal ──────────────────────────────────────────────────────────────
+const VersionModal = memo(function VersionModal({onClose}) {
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:2000,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:CARD,borderRadius:16,width:"100%",maxWidth:380,maxHeight:"80vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.35)"}}>
+        <div style={{background:G,padding:"14px 16px",borderRadius:"16px 16px 0 0"}}>
+          <div style={{fontSize:9,letterSpacing:"0.25em",color:GOLD,textTransform:"uppercase"}}>Versionshistorie</div>
+          <div style={{fontSize:17,color:"#fff",marginTop:2}}>GCGL Scorecard {APP_VERSION}</div>
+        </div>
+        <div style={{padding:"6px 16px 4px"}}>
+          {CHANGELOG.map(({v,date,items})=>(
+            <div key={v} style={{padding:"10px 0",borderBottom:`1px solid ${LINE}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+                <span style={{fontSize:15,fontWeight:"bold",color:v===APP_VERSION?G:TEXT}}>{v}</span>
+                <span style={{fontSize:11,color:MUTED}}>{date}</span>
+              </div>
+              <ul style={{margin:"4px 0 0",paddingLeft:18,fontSize:13,color:TEXT,lineHeight:1.5}}>
+                {items.map((it,i)=><li key={i}>{it}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <button onClick={onClose} style={{width:"100%",padding:"13px",background:"transparent",border:"none",color:MUTED,fontSize:13,cursor:"pointer",fontFamily:"Georgia, serif"}}>
+          Schließen
+        </button>
+      </div>
+    </div>
+  );
+});
+
 // ── ConfirmModal ──────────────────────────────────────────────────────────────
 const ConfirmModal = memo(function ConfirmModal({message, confirmLabel, onConfirm, onCancel}) {
   return (
@@ -1834,6 +1878,7 @@ function GolfScorecard() {
   const [courseModal,   setCourseModal]   = useState(false);
   const [confirmNew,    setConfirmNew]    = useState(false);
   const [confirmReset,  setConfirmReset]  = useState(false);
+  const [versionModal,  setVersionModal]  = useState(false);
   const [scoreDetail,   setScoreDetail]   = useState(null);
   const [historyModal,  setHistoryModal]  = useState(false);
   const [toast,         setToast]         = useState(null);
@@ -2055,6 +2100,7 @@ function GolfScorecard() {
         <HistoryModal ownerName={playerNames[0]} onClose={()=>setHistoryModal(false)}/>
       )}
       {confirmNew  && <ConfirmModal message="Scores löschen und neue Runde starten? Spielernamen bleiben." confirmLabel="New Round"    onConfirm={newRound}  onCancel={()=>setConfirmNew(false)}/>}
+      {versionModal && <VersionModal onClose={()=>setVersionModal(false)}/>}
       {confirmReset && <ConfirmModal message="Alles zurücksetzen inkl. Plätze und Spielernamen?"           confirmLabel="Alles löschen" onConfirm={resetAll} onCancel={()=>setConfirmReset(false)}/>}
       {scoreDetail !== null && (
         <ScoreDetailModal
@@ -2132,7 +2178,8 @@ function GolfScorecard() {
           ))}
           {/* Trash + version stacked */}
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-            <span style={{fontSize:10,color:"rgba(255,255,255,0.35)",letterSpacing:"0.04em",lineHeight:1}}>{APP_VERSION}</span>
+            <span onClick={()=>setVersionModal(true)} title="Versionshistorie"
+              style={{fontSize:10,color:"rgba(255,255,255,0.55)",letterSpacing:"0.04em",lineHeight:1,cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted"}}>{APP_VERSION}</span>
             <button onClick={()=>setConfirmReset(true)} title="Alles zurücksetzen"
               style={{
                 background:"rgba(255,0,0,0.18)", border:"1px solid rgba(255,100,100,0.35)",
